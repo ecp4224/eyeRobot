@@ -43,6 +43,7 @@ server/.idea/assetWizardSettings.xml
 server/.idea/dictionaries
 server/.idea/libraries
 server/.idea/caches
+server/.idea/*
 
 # Keystore files
 # Uncomment the following line if you do not want to check your keystore files in.
