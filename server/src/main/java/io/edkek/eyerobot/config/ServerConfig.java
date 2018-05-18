@@ -13,8 +13,4 @@ public interface ServerConfig extends Config {
     @Getter(property = "serverIp")
     @DefaultValue(value = "")
     String getServerIP();
-
-    @Getter(property = "secret")
-    @DefaultValue(value = "super_secret_12345")
-    String getServerSecret();
 }

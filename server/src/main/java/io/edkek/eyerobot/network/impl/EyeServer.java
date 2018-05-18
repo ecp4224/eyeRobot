@@ -42,13 +42,6 @@ public class EyeServer extends Server {
         else
             config.load(file);
 
-        if (config.getServerSecret().length() != 32) {
-            System.err.println("The server secret is not 32 characters!");
-            System.err.println("Aborting..");
-            System.exit(1);
-            return;
-        }
-
         handler = new TcpHandler(this);
         final EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
