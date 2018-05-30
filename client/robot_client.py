@@ -1,6 +1,8 @@
 import socket
 import sys
 import array
+import atexit
+from command import Command
 from threading import Thread
 from util.bytebuffer import ByteBuffer
 from config import IP, PORT, BUFFER, NAME
@@ -12,8 +14,19 @@ class RobotClient:
     server_address = (IP, PORT)
     packet_number = 0
     read_thread = None
+    on_command = None
 
-    def __init__(self):
+    def __init__(self, on_command):
+        """
+
+        :type on_command: function
+        """
+        if not callable(on_command):
+            print 'Invalid function passed, please pass a function to on_command'
+            sys.exit()
+
+        self.on_command = on_command
+
         try:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         except socket.error:
@@ -29,6 +42,13 @@ class RobotClient:
         self.read_thread.start()
 
         self.send_session_packet()
+
+        atexit.register(self.disconnect)
+
+    def disconnect(self):
+        self.connected = False
+
+        self.socket.shutdown(socket.SHUT_WR)
 
     def send_session_packet(self):
         arr = bytearray([0x00, 0, len(NAME)])
@@ -63,9 +83,37 @@ class RobotClient:
     def start_reading(self):
         while self.connected:
             print "Waiting for command.."
+
+            # Wait until we get a UDP packet
             data, adr = self.socket.recvfrom(BUFFER)
 
-            if data[0] == 0x03:
-                print("GOT COMMAND: " + data)
+            # Convert to byte array
+            barr = bytearray(data)
+
+            if barr[0] == 0x03:
+                # If the opcode is 0x03, then we got a command
+                print("Got Motor Command")
+
+                # Extract the rest of the packet
+                buf = ByteBuffer(barr, 1, 24)
+
+                pnum = buf.get_SLInt64()
+
+                if pnum < self.packet_number:
+                    continue # Ignore this packet, we got a packet with a higher number
+                else:
+                    self.packet_number = pnum # Update the latest packet number with the one in this packet
+
+                # Get the value of each motor
+                motor1 = buf.get_SLInt32()
+                motor2 = buf.get_SLInt32()
+                motor3 = buf.get_SLInt32()
+                motor4 = buf.get_SLInt32()
+
+                # Convert to motor command
+                command = Command(motor1, motor2, motor3, motor4)
+
+                # Invoke on_command callback
+                self.on_command(command)
             else:
-                print("Unknown packet: " + data)
+                print("Unknown packet:\nOpCode: " + barr[0] + "\nData:" + data)

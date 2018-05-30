@@ -18,6 +18,9 @@ public class RobotClient extends EyeClient {
     public RobotClient(EyeServer server, EyeServer.UdpClientInfo info) throws IOException {
         super(server);
         udpClientInfo = info;
+
+        super.setIpAddress(info.getAddress());
+        super.setPort(info.getPort());
     }
 
     @Override

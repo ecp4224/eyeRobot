@@ -5,6 +5,7 @@ import io.edkek.eyerobot.network.Client;
 import io.edkek.eyerobot.network.Server;
 import io.edkek.eyerobot.network.netty.TcpHandler;
 import io.edkek.eyerobot.network.netty.TcpServerInitializer;
+import io.edkek.eyerobot.network.packet.robot.UpdateMotorPacket;
 import io.edkek.eyerobot.world.Robot;
 import io.edkek.eyerobot.world.World;
 import io.netty.bootstrap.ServerBootstrap;
@@ -153,10 +154,12 @@ public class EyeServer extends Server {
 
         connectedUdpClients.put(info, client);
 
-        client.setIpAddress(packet.getAddress());
-        client.setPort(client.getPort());
-
         log.info("UDP connection made with robot " + info + " using name " + name);
+
+        UpdateMotorPacket p = new UpdateMotorPacket(client);
+        p.writePacket(255, 255, -255, -255);
+
+        log.info("Send test UDP packet to robot " + info + " with name " + name);
     }
 
     public void sendUdpPacket(DatagramPacket packet) throws IOException {
@@ -215,6 +218,14 @@ public class EyeServer extends Server {
         public UdpClientInfo(InetAddress address, int port) {
             this.address = address;
             this.port = port;
+        }
+
+        public InetAddress getAddress() {
+            return address;
+        }
+
+        public int getPort() {
+            return port;
         }
 
         @Override
