@@ -1,3 +1,5 @@
+server/target
+client/.idea
 .DS_STORE
 
 

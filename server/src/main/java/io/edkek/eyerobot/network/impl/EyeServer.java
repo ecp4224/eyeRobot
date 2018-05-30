@@ -128,9 +128,9 @@ public class EyeServer extends Server {
 
         byte type = buffer.get();
 
-        if (type != 1) {
+        if (type != 0) {
             //They are not who we think they are
-            //modules are required to set this field to 1
+            //robots are required to set this field to 0
             //otherwise kill them
             return;
         }
