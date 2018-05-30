@@ -27,6 +27,7 @@ public class EventPacket extends Packet<EyeServer, ModuleClient> {
                 .write(eventDataLength)
                 .write(moduleOwner)
                 .write(eventData)
+                .appendSizeToFront()
                 .endTCP();
     }
 }

@@ -4,6 +4,8 @@ import io.edkek.eyerobot.network.impl.EyeServer;
 import io.edkek.eyerobot.network.impl.ModuleClient;
 import io.edkek.eyerobot.network.impl.RobotClient;
 import io.edkek.eyerobot.network.packet.Packet;
+import io.edkek.eyerobot.network.packet.impl.OkPacket;
+import io.edkek.eyerobot.network.packet.impl.SensorInformationPacket;
 import io.edkek.eyerobot.network.packet.module.TriggerEventPacket;
 
 import java.util.HashMap;
@@ -15,6 +17,12 @@ public class PacketFactory {
     static {
         packets.put((byte)0x06, new TriggerEventPacket()); //module -> server
         sizes.put((byte)0x06, -2); //Size is in packet
+
+        packets.put((byte)0x02, new SensorInformationPacket());
+        sizes.put((byte)0x02, -2); //Size is in packet
+
+        packets.put((byte)0x01, new OkPacket());
+        sizes.put((byte)0x01, 1);
 
         /*sizes.put((byte) 0x00, 61); //Session packet
 

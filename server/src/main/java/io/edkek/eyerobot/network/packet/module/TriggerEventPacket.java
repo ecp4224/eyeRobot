@@ -18,6 +18,8 @@ public class TriggerEventPacket extends Packet<EyeServer, ModuleClient> {
         World world = client.getModule().getWorld();
         String moduleOwner = client.getModule().getName();
 
+        int packetLength = consume(4).asInt(); //Ignore
+
         byte eventId = consume(1).asByte();
         boolean shouldFilter = consume(1).asBoolean();
 
