@@ -32,7 +32,7 @@ public class PacketDecoder extends ByteToMessageDecoder {
             //This block is the Session packet
 
             byteBuf = byteBuf.order(ByteOrder.LITTLE_ENDIAN); //Set this here for the handler
-            short sessionLength = byteBuf.getShort(2);
+            byte sessionLength = byteBuf.getByte(2);
             //packet size is the 2 bytes for Type and Length
             //and the value of the Length or the byte at [2] ([opcode, Type, Length, ..]
             //and the single byte for the opcode
@@ -40,7 +40,10 @@ public class PacketDecoder extends ByteToMessageDecoder {
         } else {
             //The PacketFactory can provide us the size of the packet represented by the opcode
             //plus one to include the opcode itself
-            packetSize = PacketFactory.packetSize(opCode) + 1;
+            packetSize = PacketFactory.packetSize(opCode);
+
+            if (packetSize > 0)
+                packetSize++; //Include opcode if not dynamic length
         }
 
         //We got an unknown opcode

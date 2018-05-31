@@ -4,8 +4,12 @@ import io.edkek.eyerobot.network.impl.EyeServer;
 import io.edkek.eyerobot.network.impl.ModuleClient;
 import io.edkek.eyerobot.world.Robot;
 import io.edkek.eyerobot.world.WorldModule;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -13,6 +17,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 
+@ChannelHandler.Sharable
 public class TcpHandler extends SimpleChannelInboundHandler<byte[]> {
     private EyeServer server;
     private HashMap<ChannelHandlerContext, ModuleClient> clients = new HashMap<>();
@@ -25,9 +30,9 @@ public class TcpHandler extends SimpleChannelInboundHandler<byte[]> {
         return server;
     }
 
-    protected void messageReceived(ChannelHandlerContext channelHandlerContext, byte[] data) throws Exception {
+    protected void messageReceived(final ChannelHandlerContext channelHandlerContext, byte[] data) throws Exception {
         //Get the client for this channel
-        ModuleClient client = clients.get(channelHandlerContext);
+        final ModuleClient client = clients.get(channelHandlerContext);
 
         if (client == null) {
             //If we don't have one, then it's a new channel trying to join
@@ -35,7 +40,7 @@ public class TcpHandler extends SimpleChannelInboundHandler<byte[]> {
             //They must be a module client because Robots cannot connect
             //over TCP. They must connect over UDP
 
-            ModuleClient mClient = new ModuleClient(server);
+            final ModuleClient mClient = new ModuleClient(server);
             InetSocketAddress socketAddress = (InetSocketAddress)channelHandlerContext.channel().remoteAddress();
             mClient.attachChannel(channelHandlerContext);
             clients.put(channelHandlerContext, mClient);
@@ -79,6 +84,19 @@ public class TcpHandler extends SimpleChannelInboundHandler<byte[]> {
 
             //WE DID IT :D
             server.getLogger().info("TCP connection made with client " + socketAddress.getAddress() + " using name " + name);
+
+            //Add cleanup logic
+            ChannelFuture future = channelHandlerContext.channel().closeFuture();
+
+            future.addListener(new GenericFutureListener<Future<? super Void>>() {
+                @Override
+                public void operationComplete(Future<? super Void> future) throws Exception {
+                    //This is called when the channel is closed
+                    mClient.disconnect();
+                    server.onDisconnect(mClient);
+                    clients.remove(channelHandlerContext);
+                }
+            });
         } else {
             //We already have a client, have them handle the data
             client.handlePacket(data);

@@ -6,6 +6,8 @@ import io.edkek.eyerobot.network.impl.RobotClient;
 import io.edkek.eyerobot.network.packet.Packet;
 import io.edkek.eyerobot.network.packet.impl.OkPacket;
 import io.edkek.eyerobot.network.packet.impl.SensorInformationPacket;
+import io.edkek.eyerobot.network.packet.module.RequestSensorInformationPacket;
+import io.edkek.eyerobot.network.packet.module.RequestUpdateMotorPacket;
 import io.edkek.eyerobot.network.packet.module.TriggerEventPacket;
 
 import java.util.HashMap;
@@ -23,6 +25,12 @@ public class PacketFactory {
 
         packets.put((byte)0x01, new OkPacket());
         sizes.put((byte)0x01, 1);
+
+        packets.put((byte)0x07, new RequestSensorInformationPacket());
+        sizes.put((byte)0x07, -2);
+
+        packets.put((byte)0x08, new RequestUpdateMotorPacket());
+        sizes.put((byte)0x08, -2);
 
         /*sizes.put((byte) 0x00, 61); //Session packet
 

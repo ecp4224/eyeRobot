@@ -1,11 +1,16 @@
 package io.edkek.eyerobot.world;
 
 import io.edkek.eyerobot.network.impl.RobotClient;
+import io.edkek.eyerobot.utils.PRunnable;
+
+import java.util.ArrayList;
 
 public class Robot {
 
-    private String name;
-    private RobotClient client;
+    private transient String name;
+    private transient RobotClient client;
+    private transient ArrayList<PRunnable<Robot>> callbacks = new ArrayList<>();
+
     private float acceleration;
     private float gyro;
     private int motor1;
@@ -16,7 +21,6 @@ public class Robot {
     private byte[] depthData;
 
     //Store other variables in here for the robot
-
     public Robot(String name, RobotClient client) {
         this.name = name;
         this.client = client;
@@ -30,7 +34,8 @@ public class Robot {
         return client;
     }
 
-    public void update(float acc, float gyro, int motor1, int motor2, int motor3, int motor4, byte[] rgbData, byte[] depthData) {
+    public void update(float acc, float gyro, int motor1, int motor2, int motor3, int motor4,
+                       byte[] rgbData, byte[] depthData) {
         this.acceleration = acc;
         this.gyro = gyro;
         this.motor1 = motor1;
@@ -39,6 +44,10 @@ public class Robot {
         this.motor4 = motor4;
         this.rgbData = rgbData;
         this.depthData = depthData;
+
+        for (PRunnable<Robot> callback : callbacks) {
+            callback.run(this);
+        }
     }
 
     public float getAcceleration() {
@@ -71,5 +80,21 @@ public class Robot {
 
     public byte[] getDepthData() {
         return depthData;
+    }
+
+    public void addSensorListener(PRunnable<Robot> callback) {
+        callbacks.add(callback);
+    }
+
+    public void onConnected() {
+        World worldServer = client.getServer().getWorld();
+
+        if (worldServer.hasRobot(name)) {
+            worldServer.removeRobot(worldServer.getRobot(name)); //Remove the old instance
+        }
+
+        worldServer.addRobot(this);
+
+        //TODO Do other stuff
     }
 }

@@ -200,7 +200,7 @@ class ByteBuffer(object):
         return length
 
     def put_bytes(self, array, offset=0, length=None):
-        if not isinstance(array, bytes):
+        if not isinstance(array, bytes) and not isinstance(array, bytearray):
             raise TypeError('Can put only bytes')
 
         array_len = len(array)

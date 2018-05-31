@@ -83,4 +83,8 @@ public class World {
     public List<WorldModule> getAllModules() {
         return Collections.unmodifiableList(new ArrayList<>(modules.values()));
     }
+
+    public Robot getRobot(String name) {
+        return robots.get(name);
+    }
 }

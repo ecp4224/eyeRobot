@@ -76,6 +76,7 @@ class RobotClient:
 
         to_send = bytearray([0] * (total_size + 1))
         to_send[0] = 0x02
+        buf.set_position(0)
         buf.get(to_send, 1, total_size)
 
         self.socket.sendto(to_send, self.server_address)
