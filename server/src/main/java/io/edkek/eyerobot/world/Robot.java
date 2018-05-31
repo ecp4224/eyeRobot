@@ -1,8 +1,10 @@
 package io.edkek.eyerobot.world;
 
 import io.edkek.eyerobot.network.impl.RobotClient;
+import io.edkek.eyerobot.network.packet.robot.UpdateMotorPacket;
 import io.edkek.eyerobot.utils.PRunnable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Robot {
@@ -86,7 +88,7 @@ public class Robot {
         callbacks.add(callback);
     }
 
-    public void onConnected() {
+    public void onConnected() throws IOException {
         World worldServer = client.getServer().getWorld();
 
         if (worldServer.hasRobot(name)) {
@@ -96,5 +98,9 @@ public class Robot {
         worldServer.addRobot(this);
 
         //TODO Do other stuff
+
+        client.getServer().getLogger().info("Sending test command");
+        UpdateMotorPacket p = new UpdateMotorPacket(client);
+        p.writePacket(-255, 255, -255, 255);
     }
 }
