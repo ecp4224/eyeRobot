@@ -84,6 +84,7 @@ MonoBehaviour:
   Packets:
   - {fileID: 114426826924244048, guid: 17d59222da4ce4b4a8f755b494d344d5, type: 2}
   - {fileID: 114989089492033138, guid: bf5ed30c3fe1144e2a2968789405c81a, type: 2}
+  - {fileID: 114466720706656212, guid: 21738df867f5d46f2a0d9e82d8dc9803, type: 2}
 --- !u!114 &114977556195011798
 MonoBehaviour:
   m_ObjectHideFlags: 1
