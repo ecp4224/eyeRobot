@@ -157,7 +157,7 @@ public class EyeServer extends Server {
         log.info("UDP connection made with robot " + info + " using name " + name);
 
         UpdateMotorPacket p = new UpdateMotorPacket(client);
-        p.writePacket(255, 255, -255, -255);
+        p.writePacket(-255, 255, -255, 255);
 
         log.info("Send test UDP packet to robot " + info + " with name " + name);
     }
