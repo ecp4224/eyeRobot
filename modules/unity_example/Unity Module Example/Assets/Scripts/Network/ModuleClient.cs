@@ -104,6 +104,13 @@ public class ModuleClient : AsyncMonoBehavior
 
 	private void ServerConected(IAsyncResult ar)
 	{
+		if (!serverSocket.Connected)
+		{
+			Debug.LogError("Failed to connect to server!");
+			Debug.LogError("Is the server running on " + ip + ":" + port);
+			return;
+		}
+	
 		Debug.Log("Connected to server!");
 		SendSession();
 		Connected = true;
