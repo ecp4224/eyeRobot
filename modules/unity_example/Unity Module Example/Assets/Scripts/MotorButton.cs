@@ -16,5 +16,6 @@ public class MotorButton : MonoBehaviour
 		int motor4 = int.Parse(fields[3].text);
 		
 		ModuleClient.Instance.SendRobotCommand(motor1, motor2, motor3, motor4);
+		
 	}
 }

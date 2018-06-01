@@ -30,11 +30,9 @@ public class PacketFactory : MonoBehaviour
 		else
 		{
 			Destroy(gameObject);
+			return;
 		}
-	}
-	
-	// Use this for initialization
-	void Start () {
+		
 		foreach (var packet in Packets)
 		{
 			cache.Add(packet.opcode, packet);

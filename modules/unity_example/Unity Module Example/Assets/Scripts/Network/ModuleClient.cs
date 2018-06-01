@@ -66,18 +66,16 @@ public class ModuleClient : AsyncMonoBehavior
 		else
 		{
 			Destroy(gameObject);
+			return;
 		}
-	}
-	
-	// Use this for initialization
-	void Start () {
+		
 		serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
 		//Connect in a background thread, otherwise unity will lock up
 		serverSocket.BeginConnect(ip, port, ServerConected, null);
 	}
 
-	void Update()
+	void FixedUpdate()
 	{
 		while (_actions.Count > 0)
 		{
