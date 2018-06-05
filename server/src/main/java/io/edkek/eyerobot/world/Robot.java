@@ -99,8 +99,8 @@ public class Robot {
 
         //TODO Do other stuff
 
-        client.getServer().getLogger().info("Sending test command");
-        UpdateMotorPacket p = new UpdateMotorPacket(client);
-        p.writePacket(-255, 255, -255, 255);
+        //client.getServer().getLogger().info("Sending test command");
+        //UpdateMotorPacket p = new UpdateMotorPacket(client);
+        //p.writePacket(-255, 255, -255, 255);
     }
 }

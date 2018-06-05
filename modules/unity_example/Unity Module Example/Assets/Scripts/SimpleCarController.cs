@@ -17,7 +17,10 @@ public class SimpleCarController : MonoBehaviour {
 
 	public float motor1, motor2, motor3, motor4;
 	public float maxMotorTorque;
-	public float maxSpeed;
+
+	private float controllerValue1, controllerValue2, controllerValue3, controllerValue4;
+	float maxSpeed=255f;
+	private float acceleration = 10f;
 
 	private Rigidbody _rigidbody;
 
@@ -27,6 +30,55 @@ public class SimpleCarController : MonoBehaviour {
 		ModuleClient.Instance.RequestSensorInformation("eyeRobot", OnInfoUpdate);
 	}
 
+	void Update()
+	{
+	
+			
+		if (Input.GetKey(KeyCode.W))
+		{
+
+			controllerValue1=maxSpeed;
+			controllerValue2 = maxSpeed;
+			controllerValue3 = maxSpeed;
+			controllerValue4 = maxSpeed;
+
+		}else if (Input.GetKey(KeyCode.S))
+		{
+			controllerValue1=-maxSpeed;
+			controllerValue2 = -maxSpeed;
+			controllerValue3 = -maxSpeed;
+			controllerValue4 = -maxSpeed;
+
+		}
+		else if (Input.GetKey(KeyCode.A))
+		{
+			controllerValue1=-maxSpeed;
+			controllerValue2 = maxSpeed;
+			controllerValue3 =-maxSpeed;
+			controllerValue4 =maxSpeed;
+
+		}
+		else if (Input.GetKey(KeyCode.D))
+		{
+			controllerValue1=maxSpeed;
+			controllerValue2 = -maxSpeed;
+			controllerValue3 =maxSpeed;
+			controllerValue4 =-maxSpeed;
+
+		}
+		else
+		{
+			controllerValue1 = 0f;
+			controllerValue2 = 0f;
+			controllerValue3 = 0f;
+			controllerValue4 = 0f;
+		}
+
+		ModuleClient.Instance.SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+	}
+
+
+
 	private void OnInfoUpdate(SensorInformation arg0)
 	{
 		motor1 = arg0.motor1;
@@ -34,7 +86,7 @@ public class SimpleCarController : MonoBehaviour {
 		motor3 = arg0.motor3;
 		motor4 = arg0.motor4;
 		
-		var frontleft = axleInfos[0].leftWheel;
+		/*var frontleft = axleInfos[0].leftWheel;
 		var frontright = axleInfos[0].rightWheel;
 		var backleft = axleInfos[1].leftWheel;
 		var backright = axleInfos[1].rightWheel;
@@ -42,7 +94,7 @@ public class SimpleCarController : MonoBehaviour {
 		frontleft.brakeTorque = Mathf.Infinity;
 		frontright.brakeTorque = Mathf.Infinity;
 		backleft.brakeTorque = Mathf.Infinity;
-		backright.brakeTorque = Mathf.Infinity;
+		backright.brakeTorque = Mathf.Infinity;*/
 	}
 
 	// finds the corresponding visual wheel
@@ -73,7 +125,7 @@ public class SimpleCarController : MonoBehaviour {
 		//Find the speed by the square root of the velocity of the rigidbody of your car
 		var speed = _rigidbody.velocity.sqrMagnitude;
 		
-		Debug.Log(speed + " : " + _rigidbody.velocity);
+//		Debug.Log(speed + " : " + _rigidbody.velocity);
        
 		//Only add motorTorque if your speed is less then max speed
 		if(speed < maxSpeed) {
