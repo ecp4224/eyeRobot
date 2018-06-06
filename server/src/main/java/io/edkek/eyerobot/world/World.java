@@ -33,6 +33,7 @@ public class World {
             throw new IllegalStateException("Robot already added!");
 
         robots.put(robot.getName(), robot);
+        robot.setWorld(this);
     }
 
     /**
@@ -56,6 +57,7 @@ public class World {
             return;
 
         robots.remove(robot.getName());
+        robot.setWorld(null);
     }
 
     /**

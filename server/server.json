@@ -1,1 +1,1 @@
-{"serverIp":"","secret":"super_secret_12345","serverPort":"1337"}
+{"enforceIp":"false","serverIp":"","allowReconnect":"false","serverPort":"1337"}

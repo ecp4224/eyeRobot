@@ -40,10 +40,8 @@ public class ModuleClient extends EyeClient {
     public void listen() { }
 
     protected void onDisconnect() throws IOException {
-        if (module != null) {
-            if (module.getWorld() != null) {
-                module.getWorld().removeModule(module);
-            }
+        if (module != null && module.getWorld() != null) {
+            module.getWorld().removeModule(module);
         }
 
         module = null;

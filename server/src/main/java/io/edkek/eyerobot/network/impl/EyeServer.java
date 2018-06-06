@@ -110,6 +110,11 @@ public class EyeServer extends Server {
     public void onDisconnect(EyeClient client) throws IOException {
         log.info("[SERVER] " + client.getIpAddress() + " disconnected..");
         connectedClients.remove(client);
+
+        if (client instanceof RobotClient) {
+            RobotClient robot = (RobotClient)client;
+            connectedUdpClients.remove(robot.getUdpClientInfo());
+        }
     }
 
     public List<EyeClient> getConnectedClients() {
@@ -143,7 +148,23 @@ public class EyeServer extends Server {
 
         //Check to see if module already in the world
         if (world.hasRobot(name)) {
-            return;
+            if (!config.allowReconnect()) {
+                log.error(name + " attempted to start a new session, however \"allowReconnect\" is disabled." +
+                        " To allow this behavior, enable \"allowReconnect\"");
+                return;
+            }
+
+            Robot currentlyConnected = world.getRobot(name);
+            if (config.enforcceIp() && !currentlyConnected.getClient().getIpAddress().equals(packet.getAddress())) {
+                log.error(name + " attempted to start a new session from a new IP, however \"enforceIp\" is enabled" +
+                        " to allow this behavior, disable \"enforceIp\" (new: " + packet.getAddress() + ", " +
+                        "old: " + currentlyConnected.getClient().getIpAddress());
+                return;
+            }
+
+            log.warn(name + " has started a new session from " + packet.getAddress() + "" +
+                    " (previous ip: " + currentlyConnected.getClient().getIpAddress() + ")");
+            world.getRobot(name).getClient().disconnect();
         }
 
         UdpClientInfo info = new UdpClientInfo(packet.getAddress(), packet.getPort());
@@ -157,6 +178,8 @@ public class EyeServer extends Server {
         log.info("UDP connection made with robot " + info + " using name " + name);
 
         robot.onConnected();
+
+        addClient(client);
     }
 
     public void sendUdpPacket(DatagramPacket packet) throws IOException {

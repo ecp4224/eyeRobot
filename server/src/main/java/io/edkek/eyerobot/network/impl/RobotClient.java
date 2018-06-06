@@ -33,7 +33,12 @@ public class RobotClient extends EyeClient {
     }
 
     protected void onDisconnect() throws IOException {
+        if (robot != null && robot.getWorld() != null) {
+            robot.getWorld().removeRobot(robot);
+        }
 
+        robot = null;
+        socketServer.onDisconnect(this);
     }
 
     public void write(byte[] data) throws IOException {
@@ -78,5 +83,9 @@ public class RobotClient extends EyeClient {
 
     public void attachRobot(Robot robot) {
         this.robot = robot;
+    }
+
+    public EyeServer.UdpClientInfo getUdpClientInfo() {
+        return udpClientInfo;
     }
 }

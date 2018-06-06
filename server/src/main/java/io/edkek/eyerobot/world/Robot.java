@@ -21,6 +21,7 @@ public class Robot {
     private int motor4;
     private byte[] rgbData;
     private byte[] depthData;
+    private World world;
 
     //Store other variables in here for the robot
     public Robot(String name, RobotClient client) {
@@ -102,5 +103,13 @@ public class Robot {
         //client.getServer().getLogger().info("Sending test command");
         //UpdateMotorPacket p = new UpdateMotorPacket(client);
         //p.writePacket(-255, 255, -255, 255);
+    }
+
+    public World getWorld() {
+        return world;
+    }
+
+    void setWorld(World world) {
+        this.world = world;
     }
 }
