@@ -1187,13 +1187,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 282840810}
-  m_LocalRotation: {x: -0.009663472, y: 0.96843, z: -0.24862199, w: -0.015400317}
-  m_LocalPosition: {x: 0.25, y: 2.98, z: 3.35}
+  m_LocalRotation: {x: 0.26777956, y: 0.015294096, z: 0.0013464104, w: 0.9633579}
+  m_LocalPosition: {x: -0.11, y: 4.63, z: -6.43}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 710199928}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 28.806002, y: 181.63599, z: -0.72300005}
+  m_LocalEulerAnglesHint: {x: 31.057001, y: 2.02, z: 0.721}
 --- !u!1 &299383733
 GameObject:
   m_ObjectHideFlags: 0
@@ -1733,7 +1733,7 @@ GameObject:
   m_Component:
   - component: {fileID: 523051165}
   m_Layer: 0
-  m_Name: floor
+  m_Name: whitefloor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1840,9 +1840,10 @@ GameObject:
   - component: {fileID: 710199928}
   - component: {fileID: 710199927}
   - component: {fileID: 710199929}
+  - component: {fileID: 710199930}
   m_Layer: 0
   m_Name: robot_root
-  m_TagString: Untagged
+  m_TagString: Car
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1868,8 +1869,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 710199926}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.96991235, y: 2, z: -10.05}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
+  m_LocalPosition: {x: -0.96991235, y: 1.31, z: -7.501}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 282840814}
@@ -1878,7 +1879,7 @@ Transform:
   - {fileID: 117971558}
   m_Father: {fileID: 0}
   m_RootOrder: 8
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!114 &710199929
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1890,6 +1891,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2331e4839209940b299da476fb7f8621, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isTimer: 0
   axleInfos:
   - leftWheel: {fileID: 365672396}
     rightWheel: {fileID: 1778189651}
@@ -1903,7 +1905,19 @@ MonoBehaviour:
   motor2: 0
   motor3: 0
   motor4: 0
-  maxMotorTorque: 135
+  maxMotorTorque: 255
+--- !u!65 &710199930
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 710199926}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 2, y: 2, z: 2.5}
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!1001 &726747770
 Prefab:
   m_ObjectHideFlags: 0
@@ -2230,9 +2244,10 @@ GameObject:
   - component: {fileID: 921854987}
   - component: {fileID: 921854986}
   - component: {fileID: 921854985}
+  - component: {fileID: 921854988}
   m_Layer: 0
   m_Name: end
-  m_TagString: Untagged
+  m_TagString: Finish
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2244,7 +2259,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 921854983}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.3682, y: 0.5, z: -1.407}
+  m_LocalPosition: {x: 0.3682, y: 0.5, z: -1.809}
   m_LocalScale: {x: 3.859212, y: 0.99999976, z: 1.9907256}
   m_Children: []
   m_Father: {fileID: 2097041276}
@@ -2304,6 +2319,17 @@ MeshFilter:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 921854983}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &921854988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 921854983}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a190ad523af0749bd81293e2b8047d41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &929104571
 GameObject:
   m_ObjectHideFlags: 0
@@ -2624,7 +2650,7 @@ GameObject:
   - component: {fileID: 957601349}
   - component: {fileID: 957601348}
   m_Layer: 0
-  m_Name: floor
+  m_Name: tablelength
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2637,8 +2663,8 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 957601346}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.96991235, y: 0.5, z: -14.01}
-  m_LocalScale: {x: 5, y: 1, z: 10.4}
+  m_LocalPosition: {x: -0.96991235, y: 0.5, z: -15.91}
+  m_LocalScale: {x: 5, y: 1, z: 14.25}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 9
@@ -4809,7 +4835,7 @@ GameObject:
   - component: {fileID: 2097041275}
   m_Layer: 0
   m_Name: floor
-  m_TagString: Untagged
+  m_TagString: Finish
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

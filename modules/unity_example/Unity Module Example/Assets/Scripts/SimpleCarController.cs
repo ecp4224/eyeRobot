@@ -12,7 +12,11 @@ using System.Collections.Generic;
  }
      
 [RequireComponent(typeof(Rigidbody))]
-public class SimpleCarController : MonoBehaviour {
+public class SimpleCarController : MonoBehaviour
+{
+	public bool isTimer;
+	private float timeForTable;
+	
 	public List<AxleInfo> axleInfos;
 
 	public float motor1, motor2, motor3, motor4;
@@ -20,10 +24,21 @@ public class SimpleCarController : MonoBehaviour {
 
 	private float controllerValue1, controllerValue2, controllerValue3, controllerValue4;
 	float maxSpeed=255f;
+
+	private float unityMaxSpeed = 14.3f;
 	private float acceleration = 10f;
 
 	private Rigidbody _rigidbody;
 
+	void OnTriggerEnter(Collider col)
+	{
+		if (col.CompareTag("Finish"))
+		{
+			Debug.Log(col.gameObject.name);
+			isTimer = false;
+		}
+	}
+	
 	void Start()
 	{
 		_rigidbody = GetComponent<Rigidbody>();
@@ -32,11 +47,26 @@ public class SimpleCarController : MonoBehaviour {
 
 	void Update()
 	{
-	
-			
+
+
+		if (isTimer)
+		{
+			timeForTable += Time.deltaTime;
+			//Debug.Log(timeForTable);
+		}
+		else
+		{
+			if(timeForTable>0)
+				Debug.Log(timeForTable);
+		}
+
+		if(Input.GetKeyDown(KeyCode.W))
+			Debug.Log("start");
+		
 		if (Input.GetKey(KeyCode.W))
 		{
-
+			isTimer = true;
+			
 			controllerValue1=maxSpeed;
 			controllerValue2 = maxSpeed;
 			controllerValue3 = maxSpeed;
@@ -114,28 +144,32 @@ public class SimpleCarController : MonoBehaviour {
 		visualWheel.transform.position = position;
 		visualWheel.transform.rotation = rotation;
 	}
-     
+
 	public void FixedUpdate()
 	{
 		var frontleft = axleInfos[0].leftWheel;
 		var frontright = axleInfos[0].rightWheel;
 		var backleft = axleInfos[1].leftWheel;
 		var backright = axleInfos[1].rightWheel;
-		
+
 		//Find the speed by the square root of the velocity of the rigidbody of your car
 		var speed = _rigidbody.velocity.sqrMagnitude;
-		
+
 //		Debug.Log(speed + " : " + _rigidbody.velocity);
-       
+
 		//Only add motorTorque if your speed is less then max speed
-		if(speed < maxSpeed) {
+		//if (Input.GetKey(KeyCode.W))
+		//{
+		if (speed < unityMaxSpeed)
+		{
 			frontleft.motorTorque = (motor1 / 255f) * maxMotorTorque;
 			frontright.motorTorque = (motor2 / 255f) * maxMotorTorque;
 			backleft.motorTorque = (motor3 / 255f) * maxMotorTorque;
 			backright.motorTorque = (motor4 / 255f) * maxMotorTorque;
 		}
-		else
-		{
+	//}
+	else
+	{
 			frontleft.motorTorque = 0f;
 			frontright.motorTorque = 0f;
 			backleft.motorTorque = 0f;
