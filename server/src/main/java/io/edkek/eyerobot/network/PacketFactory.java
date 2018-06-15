@@ -4,6 +4,7 @@ import io.edkek.eyerobot.network.impl.EyeServer;
 import io.edkek.eyerobot.network.impl.ModuleClient;
 import io.edkek.eyerobot.network.impl.RobotClient;
 import io.edkek.eyerobot.network.packet.Packet;
+import io.edkek.eyerobot.network.packet.impl.KinectInfoPacket;
 import io.edkek.eyerobot.network.packet.impl.OkPacket;
 import io.edkek.eyerobot.network.packet.impl.SensorInformationPacket;
 import io.edkek.eyerobot.network.packet.module.RequestSensorInformationPacket;
@@ -31,6 +32,9 @@ public class PacketFactory {
 
         packets.put((byte)0x08, new RequestUpdateMotorPacket());
         sizes.put((byte)0x08, -2);
+
+        packets.put((byte)0x09, new KinectInfoPacket());
+        sizes.put((byte)0x09, -2);
 
         /*sizes.put((byte) 0x00, 61); //Session packet
 

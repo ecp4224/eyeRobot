@@ -14,6 +14,7 @@ public class RobotClient extends EyeClient {
     private long lastPacketNumber;
     private Robot robot;
     private EyeServer.UdpClientInfo udpClientInfo;
+    private long lastKinectPacketNumber;
 
     public RobotClient(EyeServer server, EyeServer.UdpClientInfo info) throws IOException {
         super(server);
@@ -87,5 +88,13 @@ public class RobotClient extends EyeClient {
 
     public EyeServer.UdpClientInfo getUdpClientInfo() {
         return udpClientInfo;
+    }
+
+    public long getLastKinectPacketNumber() {
+        return lastKinectPacketNumber;
+    }
+
+    public void setLastKinectPacketNumber(long lastKinectPacketNumber) {
+        this.lastKinectPacketNumber = lastKinectPacketNumber;
     }
 }

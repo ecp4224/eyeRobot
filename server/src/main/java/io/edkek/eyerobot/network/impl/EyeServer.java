@@ -41,6 +41,7 @@ public class EyeServer extends Server {
     protected DatagramSocket udpServerSocket;
     protected Thread udpThread;
     protected HashMap<UdpClientInfo, RobotClient> connectedUdpClients = new HashMap<>();
+    protected HashMap<UdpClientInfo, UdpClientInfo> peerInfo = new HashMap<>();
 
     @Override
     protected void onStart() {
@@ -142,9 +143,12 @@ public class EyeServer extends Server {
         }
 
         byte length = buffer.get();
+        byte length2 = buffer.get();
 
         //Lastly extract the name using the length field
         String name = new String(data, 3, length, Charset.forName("ASCII"));
+
+        String peer = new String(data, 3 + length, length2, Charset.forName("ASCII"));
 
         //Check to see if module already in the world
         if (world.hasRobot(name)) {
@@ -168,12 +172,14 @@ public class EyeServer extends Server {
         }
 
         UdpClientInfo info = new UdpClientInfo(packet.getAddress(), packet.getPort());
+        UdpClientInfo peerInfo = new UdpClientInfo(InetAddress.getByName(peer), -1);
         RobotClient client = new RobotClient(this, info);
         Robot robot = new Robot(name, client);
 
         client.attachRobot(robot);
 
         connectedUdpClients.put(info, client);
+        this.peerInfo.put(peerInfo, info);
 
         log.info("UDP connection made with robot " + info + " using name " + name);
 
@@ -207,7 +213,20 @@ public class EyeServer extends Server {
                     if ((client = connectedUdpClients.get(info)) != null) {
                         client.processUdpPacket(receivePacket);
                     } else {
-                        new UdpAcceptThread(receivePacket).run();
+                        //If this is a peer sending some data
+                        if (peerInfo.containsKey(info)) {
+
+                            //Find the peer's robot info
+                            UdpClientInfo clientPeer = peerInfo.get(info);
+
+                            //Get the RobotClient given the robot info
+                            if ((client = connectedUdpClients.get(clientPeer)) != null) {
+                                client.processUdpPacket(receivePacket); //Give RobotClient packet to process
+                                continue; //We successfully redirected this peer
+                            }
+                        }
+
+                        new UdpAcceptThread(receivePacket).run(); //This may be a new robot trying to connect
                     }
 
                 } catch (Throwable t) {
@@ -255,7 +274,7 @@ public class EyeServer extends Server {
 
             UdpClientInfo that = (UdpClientInfo) o;
 
-            if (port != that.port) return false;
+            //if (port != that.port) return false;
             if (!address.equals(that.address)) return false;
 
             return true;
@@ -264,7 +283,7 @@ public class EyeServer extends Server {
         @Override
         public int hashCode() {
             int result = address.hashCode();
-            result = 31 * result + port;
+            //result = 31 * result + port;
             return result;
         }
 

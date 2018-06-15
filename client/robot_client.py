@@ -1,11 +1,10 @@
 import socket
 import sys
-import array
 import atexit
 from command import Command
 from threading import Thread
 from util.bytebuffer import ByteBuffer
-from config import IP, PORT, BUFFER, NAME
+from config import IP, PORT, BUFFER, NAME, PEER_IP
 
 
 class RobotClient:
@@ -51,8 +50,9 @@ class RobotClient:
         self.socket.shutdown(socket.SHUT_WR)
 
     def send_session_packet(self):
-        arr = bytearray([0x00, 0, len(NAME)])
+        arr = bytearray([0x00, 0, len(NAME), len(PEER_IP)])
         arr.extend(NAME)
+        arr.extend(PEER_IP)
 
         self.socket.sendto(arr, self.server_address)
 

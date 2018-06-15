@@ -13,8 +13,9 @@ public class Robot {
     private transient RobotClient client;
     private transient ArrayList<PRunnable<Robot>> callbacks = new ArrayList<>();
 
-    private float acceleration;
-    private float gyro;
+    private double accelerationx;
+    private double accelerationy;
+    private double accelerationz;
     private int motor1;
     private int motor2;
     private int motor3;
@@ -37,14 +38,21 @@ public class Robot {
         return client;
     }
 
-    public void update(float acc, float gyro, int motor1, int motor2, int motor3, int motor4,
-                       byte[] rgbData, byte[] depthData) {
-        this.acceleration = acc;
-        this.gyro = gyro;
+    public void update(int motor1, int motor2, int motor3, int motor4) {
         this.motor1 = motor1;
         this.motor2 = motor2;
         this.motor3 = motor3;
         this.motor4 = motor4;
+
+        for (PRunnable<Robot> callback : callbacks) {
+            callback.run(this);
+        }
+    }
+
+    public void update(double accx, double accy, double accz, byte[] rgbData, byte[] depthData) {
+        this.accelerationx = accx;
+        this.accelerationy = accy;
+        this.accelerationz = accz;
         this.rgbData = rgbData;
         this.depthData = depthData;
 
@@ -53,12 +61,16 @@ public class Robot {
         }
     }
 
-    public float getAcceleration() {
-        return acceleration;
+    public double getAccelerationx() {
+        return accelerationx;
     }
 
-    public float getGyro() {
-        return gyro;
+    public double getAccelerationy() {
+        return accelerationy;
+    }
+
+    public double getAccelerationz() {
+        return accelerationz;
     }
 
     public int getMotor1() {
@@ -100,9 +112,9 @@ public class Robot {
 
         //TODO Do other stuff
 
-        //client.getServer().getLogger().info("Sending test command");
-        //UpdateMotorPacket p = new UpdateMotorPacket(client);
-        //p.writePacket(-255, 255, -255, 255);
+        client.getServer().getLogger().info("Sending test command");
+        UpdateMotorPacket p = new UpdateMotorPacket(client);
+        p.writePacket(-255, 255, -255, 255);
     }
 
     public World getWorld() {
