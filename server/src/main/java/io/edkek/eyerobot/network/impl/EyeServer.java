@@ -143,12 +143,12 @@ public class EyeServer extends Server {
         }
 
         byte length = buffer.get();
-        byte length2 = buffer.get();
+        //byte length2 = buffer.get();
 
         //Lastly extract the name using the length field
         String name = new String(data, 3, length, Charset.forName("ASCII"));
 
-        String peer = new String(data, 3 + length, length2, Charset.forName("ASCII"));
+        //String peer = new String(data, 3 + length, length2, Charset.forName("ASCII"));
 
         //Check to see if module already in the world
         if (world.hasRobot(name)) {
@@ -172,14 +172,14 @@ public class EyeServer extends Server {
         }
 
         UdpClientInfo info = new UdpClientInfo(packet.getAddress(), packet.getPort());
-        UdpClientInfo peerInfo = new UdpClientInfo(InetAddress.getByName(peer), -1);
+        //UdpClientInfo peerInfo = new UdpClientInfo(InetAddress.getByName(peer), -1);
         RobotClient client = new RobotClient(this, info);
         Robot robot = new Robot(name, client);
 
         client.attachRobot(robot);
 
         connectedUdpClients.put(info, client);
-        this.peerInfo.put(peerInfo, info);
+        //this.peerInfo.put(peerInfo, info);
 
         log.info("UDP connection made with robot " + info + " using name " + name);
 

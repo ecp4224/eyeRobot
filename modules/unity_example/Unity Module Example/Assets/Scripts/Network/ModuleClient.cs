@@ -9,6 +9,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.Events;
+using Newtonsoft.Json;
 
 public class ModuleClient : AsyncMonoBehavior
 {
@@ -225,7 +226,8 @@ public class ModuleClient : AsyncMonoBehavior
 			return;
 
 		Type t = eventCache[id];
-		object obj = JsonUtility.FromJson(json, t);
+		object obj = JsonConvert.DeserializeObject(json, t);
+		//object obj = JsonUtility.FromJson(json, t);
 
 		var callback = eventCallbacks[id];
 

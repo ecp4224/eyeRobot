@@ -53,8 +53,12 @@ public class Robot {
         this.accelerationx = accx;
         this.accelerationy = accy;
         this.accelerationz = accz;
-        this.rgbData = rgbData;
-        this.depthData = depthData;
+
+        if (rgbData.length > 0)
+            this.rgbData = rgbData;
+
+        if (depthData.length > 0)
+            this.depthData = depthData;
 
         for (PRunnable<Robot> callback : callbacks) {
             callback.run(this);

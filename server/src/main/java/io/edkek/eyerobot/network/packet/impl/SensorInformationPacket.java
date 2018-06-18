@@ -23,16 +23,10 @@ public class SensorInformationPacket extends Packet<EyeServer, EyeClient> {
                 robotClient.setLastPacketNumber(packetNumber);
             }
 
-            int rgbLength = consume(4).asInt();
-            int depthLength = consume(4).asInt();
-            float acc = consume(4).asFloat();
-            float gyro = consume(4).asFloat();
             int motor1 = consume(4).asInt();
             int motor2 = consume(4).asInt();
             int motor3 = consume(4).asInt();
             int motor4 = consume(4).asInt();
-            byte[] rgbData = consume(rgbLength).raw();
-            byte[] depthData = consume(depthLength).raw();
 
             robotClient.getRobot().update(motor1, motor2, motor3, motor4);
         }

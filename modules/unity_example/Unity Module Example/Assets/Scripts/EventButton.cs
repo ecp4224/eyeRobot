@@ -10,26 +10,15 @@ public class EventButton : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
-		ModuleClient.Instance.ListenFor<SimpleEvent>(OnSimpleEvent);
+		//ModuleClient.Instance.ListenFor<SimpleEvent>(OnSimpleEvent);
 	}
 
 	public void TriggerEvent()
 	{
-		SimpleEvent e = new SimpleEvent();
-		e.Hello = "hi";
-		e.World = 42;
+		//SimpleEvent e = new SimpleEvent();
+		//e.Hello = "hi";
+		//e.World = 42;
 
-		ModuleClient.Instance.TriggerEvent(e);
-	}
-
-	void OnSimpleEvent(SimpleEvent @event, string moduleOwner)
-	{
-		Debug.Log("Got event! " + @event.World);
-
-		text.text = "Last Event:\n" +
-		            "From: " + moduleOwner + "\n" +
-		            "Data: \n" +
-		            "\tHello: " + @event.Hello + "\n" +
-		            "\tWorld: " + @event.World;
+		//ModuleClient.Instance.TriggerEvent(e);
 	}
 }

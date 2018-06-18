@@ -43,6 +43,25 @@ public class SimpleCarController : MonoBehaviour
 	{
 		_rigidbody = GetComponent<Rigidbody>();
 		ModuleClient.Instance.RequestSensorInformation("eyeRobot", OnInfoUpdate);
+		ModuleClient.Instance.ListenFor<DepthEvent>(OnDepthEvent);
+	}
+
+	private void OnDepthEvent(DepthEvent arg0, string arg1)
+	{
+		for (int x = 0; x < arg0.data.Length; x++)
+		{
+			for (int y = 0; y < arg0.data[x].Length; y++)
+			{
+				int data = arg0.data[x][y];
+
+				if (data == 0)
+				{
+					Debug.Log("Found blank spot");
+				}
+			}
+		}
+		
+		Debug.Log("Got depth! (" + arg0.data.Length + "x" + arg0.data[0].Length + ")");
 	}
 
 	void Update()
@@ -104,7 +123,7 @@ public class SimpleCarController : MonoBehaviour
 			controllerValue4 = 0f;
 		}
 
-		ModuleClient.Instance.SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+		//ModuleClient.Instance.SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
 	}
 
 
