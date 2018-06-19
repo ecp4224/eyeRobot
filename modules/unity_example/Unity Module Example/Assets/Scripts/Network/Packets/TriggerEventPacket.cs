@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using Newtonsoft.Json;
 
 public class TriggerEventPacket : Packet
 {
@@ -10,7 +10,7 @@ public class TriggerEventPacket : Packet
         if (@event == null)
             return;
 
-        string json = JsonUtility.ToJson(@event);
+        string json = JsonConvert.SerializeObject(@event);
         bool shouldFilter = !string.IsNullOrEmpty(filter);
 
         write((byte) 0x06);

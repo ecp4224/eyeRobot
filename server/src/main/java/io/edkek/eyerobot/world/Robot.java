@@ -12,6 +12,7 @@ public class Robot {
     private transient String name;
     private transient RobotClient client;
     private transient ArrayList<PRunnable<Robot>> callbacks = new ArrayList<>();
+    private transient World world;
 
     private double accelerationx;
     private double accelerationy;
@@ -22,7 +23,6 @@ public class Robot {
     private int motor4;
     private byte[] rgbData;
     private byte[] depthData;
-    private World world;
 
     //Store other variables in here for the robot
     public Robot(String name, RobotClient client) {

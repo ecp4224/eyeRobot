@@ -19,6 +19,8 @@ public class SimpleCarController : MonoBehaviour
 	
 	public List<AxleInfo> axleInfos;
 
+	private int[][] oldFrame;
+
 	public float motor1, motor2, motor3, motor4;
 	public float maxMotorTorque;
 
@@ -48,20 +50,23 @@ public class SimpleCarController : MonoBehaviour
 
 	private void OnDepthEvent(DepthEvent arg0, string arg1)
 	{
-		for (int x = 0; x < arg0.data.Length; x++)
+		if (oldFrame != null)
 		{
-			for (int y = 0; y < arg0.data[x].Length; y++)
+			for (int x = 0; x < arg0.data.Length; x++)
 			{
-				int data = arg0.data[x][y];
-
-				if (data == 0)
+				for (int y = 0; y < arg0.data[x].Length; y++)
 				{
-					Debug.Log("Found blank spot");
+					int pixel = arg0.data[x][y];
+					int oldPixel = oldFrame[x][y];
+					
+					
 				}
 			}
 		}
-		
-		Debug.Log("Got depth! (" + arg0.data.Length + "x" + arg0.data[0].Length + ")");
+
+		Debug.Log("Got depth! (" + arg0.data.Length + "x" + arg0.data[0].Length + "");
+
+		oldFrame = arg0.data;
 	}
 
 	void Update()

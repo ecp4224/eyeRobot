@@ -1,5 +1,4 @@
 import freenect
-import zlib
 
 from module_client import ModuleClient
 

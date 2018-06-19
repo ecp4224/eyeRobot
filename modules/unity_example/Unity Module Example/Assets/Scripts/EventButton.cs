@@ -15,10 +15,14 @@ public class EventButton : MonoBehaviour
 
 	public void TriggerEvent()
 	{
-		//SimpleEvent e = new SimpleEvent();
-		//e.Hello = "hi";
-		//e.World = 42;
+		DepthEvent e = new DepthEvent();
+		e.data = new[]
+		{
+			new int[10],
+			new int[10],
+			new int[10]
+		};
 
-		//ModuleClient.Instance.TriggerEvent(e);
+		ModuleClient.Instance.TriggerEvent(e);
 	}
 }
