@@ -3,13 +3,13 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-[System.Serializable]
- public class AxleInfo {
- 	public WheelCollider leftWheel;
- 	public WheelCollider rightWheel;
- 	public bool motor;
- 	public bool steering;
- }
+//[System.Serializable]
+// public class AxleInfo {
+// 	public WheelCollider leftWheel;
+// 	public WheelCollider rightWheel;
+// 	public bool motor;
+// 	public bool steering;
+// }
      
 [RequireComponent(typeof(Rigidbody))]
 public class SimpleCarController : MonoBehaviour
@@ -17,9 +17,7 @@ public class SimpleCarController : MonoBehaviour
 	public bool isTimer;
 	private float timeForTable;
 	
-	public List<AxleInfo> axleInfos;
-
-	private int[][] oldFrame;
+	//public List<AxleInfo> axleInfos;
 
 	public float motor1, motor2, motor3, motor4;
 	public float maxMotorTorque;
@@ -31,6 +29,12 @@ public class SimpleCarController : MonoBehaviour
 	private float acceleration = 10f;
 
 	private Rigidbody _rigidbody;
+
+
+	//NEW MOVEMENT STUFF
+	public float moveSpeed=7f;
+	public float rotateSpeed=35f;
+
 
 	void OnTriggerEnter(Collider col)
 	{
@@ -45,28 +49,12 @@ public class SimpleCarController : MonoBehaviour
 	{
 		_rigidbody = GetComponent<Rigidbody>();
 		ModuleClient.Instance.RequestSensorInformation("eyeRobot", OnInfoUpdate);
-		ModuleClient.Instance.ListenFor<DepthEvent>(OnDepthEvent);
+		ModuleClient.Instance.ListenFor<DepthEvent>(OnDepthData);
 	}
 
-	private void OnDepthEvent(DepthEvent arg0, string arg1)
+	void OnDepthData (DepthEvent args, string module)
 	{
-		if (oldFrame != null)
-		{
-			for (int x = 0; x < arg0.data.Length; x++)
-			{
-				for (int y = 0; y < arg0.data[x].Length; y++)
-				{
-					int pixel = arg0.data[x][y];
-					int oldPixel = oldFrame[x][y];
-					
-					
-				}
-			}
-		}
-
-		Debug.Log("Got depth! (" + arg0.data.Length + "x" + arg0.data[0].Length + "");
-
-		oldFrame = arg0.data;
+		Debug.Log ("Got Depth (" + args.data.Length + "x" + args.data [0].Length + ")");
 	}
 
 	void Update()
@@ -84,40 +72,54 @@ public class SimpleCarController : MonoBehaviour
 				Debug.Log(timeForTable);
 		}
 
-		if(Input.GetKeyDown(KeyCode.W))
-			Debug.Log("start");
+
 		
 		if (Input.GetKey(KeyCode.W))
 		{
 			isTimer = true;
-			
+
 			controllerValue1=maxSpeed;
 			controllerValue2 = maxSpeed;
 			controllerValue3 = maxSpeed;
 			controllerValue4 = maxSpeed;
 
+
+
+
 		}else if (Input.GetKey(KeyCode.S))
 		{
+			
+
 			controllerValue1=-maxSpeed;
 			controllerValue2 = -maxSpeed;
 			controllerValue3 = -maxSpeed;
 			controllerValue4 = -maxSpeed;
 
+
+
 		}
 		else if (Input.GetKey(KeyCode.A))
 		{
+
+	
+
 			controllerValue1=-maxSpeed;
 			controllerValue2 = maxSpeed;
 			controllerValue3 =-maxSpeed;
 			controllerValue4 =maxSpeed;
 
+
+
 		}
 		else if (Input.GetKey(KeyCode.D))
 		{
+
 			controllerValue1=maxSpeed;
 			controllerValue2 = -maxSpeed;
 			controllerValue3 =maxSpeed;
 			controllerValue4 =-maxSpeed;
+
+
 
 		}
 		else
@@ -128,7 +130,7 @@ public class SimpleCarController : MonoBehaviour
 			controllerValue4 = 0f;
 		}
 
-		//ModuleClient.Instance.SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+		ModuleClient.Instance.SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
 	}
 
 
@@ -139,16 +141,46 @@ public class SimpleCarController : MonoBehaviour
 		motor2= arg0.motor2;
 		motor3 = arg0.motor3;
 		motor4 = arg0.motor4;
-		
-		/*var frontleft = axleInfos[0].leftWheel;
-		var frontright = axleInfos[0].rightWheel;
-		var backleft = axleInfos[1].leftWheel;
-		var backright = axleInfos[1].rightWheel;
 
-		frontleft.brakeTorque = Mathf.Infinity;
-		frontright.brakeTorque = Mathf.Infinity;
-		backleft.brakeTorque = Mathf.Infinity;
-		backright.brakeTorque = Mathf.Infinity;*/
+		if (Input.GetKey(KeyCode.W))
+		{
+			//Debug.Log ("did eddie lie to me");
+			float forwardMult=1.11f;
+			this.transform.localPosition += transform.forward * moveSpeed * forwardMult * Time.deltaTime;
+
+
+
+		}else if (Input.GetKey(KeyCode.S))
+		{
+
+			this.transform.localPosition -= transform.forward * moveSpeed * Time.deltaTime;
+
+
+
+
+		}
+		else if (Input.GetKey(KeyCode.A))
+		{
+
+			this.transform.Rotate (-Vector3.up * rotateSpeed * Time.deltaTime);
+
+
+
+
+		}
+		else if (Input.GetKey(KeyCode.D))
+		{
+
+			//Debug.Log ("this rotating right");
+			this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
+
+
+
+
+		}
+
+		
+	
 	}
 
 	// finds the corresponding visual wheel
@@ -165,16 +197,16 @@ public class SimpleCarController : MonoBehaviour
 		Quaternion rotation;
 		collider.GetWorldPose(out position, out rotation);
      
-		visualWheel.transform.position = position;
-		visualWheel.transform.rotation = rotation;
+		//visualWheel.transform.position = position;
+		//visualWheel.transform.rotation = rotation;
 	}
 
 	public void FixedUpdate()
 	{
-		var frontleft = axleInfos[0].leftWheel;
-		var frontright = axleInfos[0].rightWheel;
-		var backleft = axleInfos[1].leftWheel;
-		var backright = axleInfos[1].rightWheel;
+//		var frontleft = axleInfos[0].leftWheel;
+//		var frontright = axleInfos[0].rightWheel;
+//		var backleft = axleInfos[1].leftWheel;
+//		var backright = axleInfos[1].rightWheel;
 
 		//Find the speed by the square root of the velocity of the rigidbody of your car
 		var speed = _rigidbody.velocity.sqrMagnitude;
@@ -186,30 +218,31 @@ public class SimpleCarController : MonoBehaviour
 		//{
 		if (speed < unityMaxSpeed)
 		{
-			frontleft.motorTorque = (motor1 / 255f) * maxMotorTorque;
-			frontright.motorTorque = (motor2 / 255f) * maxMotorTorque;
-			backleft.motorTorque = (motor3 / 255f) * maxMotorTorque;
-			backright.motorTorque = (motor4 / 255f) * maxMotorTorque;
+			
+//			frontleft.motorTorque = (motor1 / 255f) * maxMotorTorque;
+//			frontright.motorTorque = (motor2 / 255f) * maxMotorTorque;
+//			backleft.motorTorque = (motor3 / 255f) * maxMotorTorque;
+//			backright.motorTorque = (motor4 / 255f) * maxMotorTorque;
 		}
 	//}
 	else
 	{
-			frontleft.motorTorque = 0f;
-			frontright.motorTorque = 0f;
-			backleft.motorTorque = 0f;
-			backright.motorTorque = 0f;
-		}
+//			frontleft.motorTorque = 0f;
+//			frontright.motorTorque = 0f;
+//			backleft.motorTorque = 0f;
+//			backright.motorTorque = 0f;
+	}
 		
-		ApplyLocalPositionToVisuals(frontleft);
-		ApplyLocalPositionToVisuals(frontright);
-		ApplyLocalPositionToVisuals(backleft);
-		ApplyLocalPositionToVisuals(backright);
+//		ApplyLocalPositionToVisuals(frontleft);
+//		ApplyLocalPositionToVisuals(frontright);
+//		ApplyLocalPositionToVisuals(backleft);
+//		ApplyLocalPositionToVisuals(backright);
 
 
-		frontleft.brakeTorque = 0f;
-		frontright.brakeTorque = 0f;
-		backleft.brakeTorque = 0f;
-		backright.brakeTorque = 0f;
+//		frontleft.brakeTorque = 0f;
+//		frontright.brakeTorque = 0f;
+//		backleft.brakeTorque = 0f;
+//		backright.brakeTorque = 0f;
 
 		/*float motor = maxMotorTorque * Input.GetAxis("Vertical");
 		
