@@ -4,7 +4,7 @@ from module_client import ModuleClient
 
 keep_running = True
 tilt = 0
-
+updateit = True
 
 client = ModuleClient()
 client.connect()
@@ -35,6 +35,11 @@ def send_rgb(dev, data, timestamp):
 
 def body(dev, *args):
     global tilt
+    global updateit
+
+    if updateit:
+        freenect.set_depth_mode(dev, freenect.RESOLUTION_MEDIUM, freenect.DEPTH_11BIT)
+        updateit = False
 
     freenect.set_tilt_degs(dev, tilt)
 

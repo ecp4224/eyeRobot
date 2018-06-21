@@ -77,7 +77,8 @@ public class SimpleCarController : MonoBehaviour
 		if (Input.GetKey(KeyCode.W))
 		{
 			isTimer = true;
-
+			float forwardMult=1.09f;
+			this.transform.localPosition += transform.forward * moveSpeed * forwardMult * Time.deltaTime;
 			controllerValue1=maxSpeed;
 			controllerValue2 = maxSpeed;
 			controllerValue3 = maxSpeed;
@@ -89,7 +90,7 @@ public class SimpleCarController : MonoBehaviour
 		}else if (Input.GetKey(KeyCode.S))
 		{
 			
-
+			this.transform.localPosition -= transform.forward * moveSpeed * Time.deltaTime;
 			controllerValue1=-maxSpeed;
 			controllerValue2 = -maxSpeed;
 			controllerValue3 = -maxSpeed;
@@ -101,7 +102,7 @@ public class SimpleCarController : MonoBehaviour
 		else if (Input.GetKey(KeyCode.A))
 		{
 
-	
+			this.transform.Rotate (-Vector3.up * rotateSpeed * Time.deltaTime);
 
 			controllerValue1=-maxSpeed;
 			controllerValue2 = maxSpeed;
@@ -113,7 +114,9 @@ public class SimpleCarController : MonoBehaviour
 		}
 		else if (Input.GetKey(KeyCode.D))
 		{
-
+			
+			this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
+			
 			controllerValue1=maxSpeed;
 			controllerValue2 = -maxSpeed;
 			controllerValue3 =maxSpeed;
@@ -142,42 +145,42 @@ public class SimpleCarController : MonoBehaviour
 		motor3 = arg0.motor3;
 		motor4 = arg0.motor4;
 
-		if (Input.GetKey(KeyCode.W))
-		{
-			//Debug.Log ("did eddie lie to me");
-			float forwardMult=1.11f;
-			this.transform.localPosition += transform.forward * moveSpeed * forwardMult * Time.deltaTime;
-
-
-
-		}else if (Input.GetKey(KeyCode.S))
-		{
-
-			this.transform.localPosition -= transform.forward * moveSpeed * Time.deltaTime;
-
-
-
-
-		}
-		else if (Input.GetKey(KeyCode.A))
-		{
-
-			this.transform.Rotate (-Vector3.up * rotateSpeed * Time.deltaTime);
-
-
-
-
-		}
-		else if (Input.GetKey(KeyCode.D))
-		{
-
-			//Debug.Log ("this rotating right");
-			this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
-
-
-
-
-		}
+//		if (Input.GetKey(KeyCode.W))
+//		{
+//			//Debug.Log ("did eddie lie to me");
+//			float forwardMult=1.11f;
+//			this.transform.localPosition += transform.forward * moveSpeed * forwardMult * Time.deltaTime;
+//
+//
+//
+//		}else if (Input.GetKey(KeyCode.S))
+//		{
+//
+//			this.transform.localPosition -= transform.forward * moveSpeed * Time.deltaTime;
+//
+//
+//
+//
+//		}
+//		else if (Input.GetKey(KeyCode.A))
+//		{
+//
+//			this.transform.Rotate (-Vector3.up * rotateSpeed * Time.deltaTime);
+//
+//
+//
+//
+//		}
+//		else if (Input.GetKey(KeyCode.D))
+//		{
+//
+//			//Debug.Log ("this rotating right");
+//			this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
+//
+//
+//
+//
+//		}
 
 		
 	
