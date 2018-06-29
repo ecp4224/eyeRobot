@@ -19,7 +19,7 @@ def send_depth(dev, data, timestamp):
     # compressed_data = zlib.compress(b)
     # pls_work = zlib.compress(compressed_data)
 
-    client.trigger_event(3, {"data": data.tolist()}, "")
+    #client.trigger_event(3, {"data": data.tolist()}, "")
 
 
 def send_rgb(dev, data, timestamp):
@@ -30,7 +30,7 @@ def send_rgb(dev, data, timestamp):
     # compressed_data = zlib.compress(b)
     # pls_work = zlib.compress(compressed_data)
 
-    client.trigger_event(4, {"data": data.tolist()}, "")
+    client.trigger_event(4, {"data": data.tolist()}, "objDetection")
 
 
 def body(dev, *args):
@@ -45,7 +45,7 @@ def body(dev, *args):
 
     acc = freenect.get_accel(dev)
 
-    client.trigger_event(5, {"tilt": tilt, "accX": acc[0], "accY": acc[1], "accZ": acc[2]}, "")
+    client.trigger_event(5, {"tilt": tilt, "accX": acc[0], "accY": acc[1], "accZ": acc[2]}, "Example")
 
     if not keep_running:
         client.disconnect()
