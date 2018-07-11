@@ -16,6 +16,9 @@ public class SimpleCarController : MonoBehaviour
 {
 	public bool isTimer;
 	private float timeForTable;
+
+	[DistanceVariable]
+	public float distance;
 	
 	//public List<AxleInfo> axleInfos;
 
@@ -30,7 +33,11 @@ public class SimpleCarController : MonoBehaviour
 
 	private Rigidbody _rigidbody;
 
+<<<<<<< HEAD
 	AccelEvent accData;
+=======
+	Vector3 accData;
+>>>>>>> 2db63d233229d1199c808e9e8598b8f2e94b7d12
 	bool dirty=false;
 
 	//NEW MOVEMENT STUFF
@@ -39,12 +46,15 @@ public class SimpleCarController : MonoBehaviour
 
 	public float endTime;
 
+<<<<<<< HEAD
 	public static SimpleCarController instance;
 
 	void Awake(){
 		instance = this;
 	}
 
+=======
+>>>>>>> 2db63d233229d1199c808e9e8598b8f2e94b7d12
 
 	void OnTriggerEnter(Collider col)
 	{
@@ -60,6 +70,7 @@ public class SimpleCarController : MonoBehaviour
 	
 	void Start()
 	{
+<<<<<<< HEAD
 		ModuleClient.Instance.RequestSensorInformation("eyeRobot", OnInfoUpdate);
 		ModuleClient.Instance.ListenFor<AccelEvent>(OnAccelData);
 	}
@@ -72,6 +83,19 @@ public class SimpleCarController : MonoBehaviour
 		dirty = true;
 
 		Debug.Log ("Yaw: " + Yaw (new Vector4 (args.accX, args.accY, args.accZ, args.tilt)));
+=======
+		GameServer.Instance.RegisterGameManager(this);
+		GameServer.Instance.OnMovement(OnAccelData);
+		ModuleClient.Instance.RequestSensorInformation("eyeRobot", OnInfoUpdate);
+	}
+
+	void OnAccelData (Vector3 acceleration, Vector3 velocity)
+	{
+		Debug.Log ("Got args Acceleration: x = " + acceleration.x + " y = " + acceleration.y + " z = " + acceleration.z + " .");
+
+		accData=acceleration;
+		dirty = true;
+>>>>>>> 2db63d233229d1199c808e9e8598b8f2e94b7d12
 	}
 
 	public static double Yaw(Vector4 quaternion){
@@ -99,7 +123,12 @@ public class SimpleCarController : MonoBehaviour
 //			if(timeForTable>0)
 //				Debug.Log(timeForTable);
 		}
+<<<<<<< HEAD
 			
+=======
+		
+		
+>>>>>>> 2db63d233229d1199c808e9e8598b8f2e94b7d12
 		if (Input.GetKey(KeyCode.W))
 		{
 			this.transform.localPosition += transform.forward * moveSpeed * Time.deltaTime;
@@ -143,6 +172,7 @@ public class SimpleCarController : MonoBehaviour
 			controllerValue3 = 0f;
 			controllerValue4 = 0f;
 		}
+<<<<<<< HEAD
 
 		//
 		//
@@ -152,6 +182,13 @@ public class SimpleCarController : MonoBehaviour
 		{
 			this.transform.localPosition += transform.forward * moveSpeed * Time.deltaTime;
 
+=======
+		
+		if (NetworkInput.GetKey(KeyCode.W))
+		{
+			this.transform.localPosition += transform.forward * moveSpeed * Time.deltaTime;
+
+>>>>>>> 2db63d233229d1199c808e9e8598b8f2e94b7d12
 			isTimer = true;
 			controllerValue1=maxSpeed;
 			controllerValue2 = maxSpeed;
@@ -160,6 +197,7 @@ public class SimpleCarController : MonoBehaviour
 		}else if (NetworkInput.GetKey(KeyCode.S))
 		{
 			this.transform.localPosition -= transform.forward * moveSpeed * Time.deltaTime;
+<<<<<<< HEAD
 
 			controllerValue1=-maxSpeed;
 			controllerValue2 = -maxSpeed;
@@ -179,6 +217,27 @@ public class SimpleCarController : MonoBehaviour
 		{
 			this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
 
+=======
+
+			controllerValue1=-maxSpeed;
+			controllerValue2 = -maxSpeed;
+			controllerValue3 = -maxSpeed;
+			controllerValue4 = -maxSpeed;
+		}
+		else if (NetworkInput.GetKey(KeyCode.A))
+		{
+			this.transform.Rotate (-Vector3.up * rotateSpeed * Time.deltaTime);
+
+			controllerValue1=-maxSpeed;
+			controllerValue2 = maxSpeed;
+			controllerValue3 =-maxSpeed;
+			controllerValue4 =maxSpeed;
+		}
+		else if (NetworkInput.GetKey(KeyCode.D))
+		{
+			this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
+
+>>>>>>> 2db63d233229d1199c808e9e8598b8f2e94b7d12
 			controllerValue1=maxSpeed;
 			controllerValue2 = -maxSpeed;
 			controllerValue3 =maxSpeed;

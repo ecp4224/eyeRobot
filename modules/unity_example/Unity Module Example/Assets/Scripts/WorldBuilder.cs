@@ -9,6 +9,7 @@ public class WorldBuilder : MonoBehaviour {
 	public Transform world;
 	public int threshold=1000;
 	bool dirty=false;
+<<<<<<< HEAD
 	DepthEvent data;
 
 	void Start(){
@@ -23,6 +24,21 @@ public class WorldBuilder : MonoBehaviour {
 		data=args;
 		dirty = true;
 	}
+=======
+
+	void Start(){
+		
+		//ModuleClient.Instance.ListenFor<DepthEvent>(OnDepthData);
+	
+	}
+
+	//void OnDepthData (DepthEvent args, string module)
+	//{
+		//Debug.Log ("Got Depth (" + args.data.Length + "x" + args.data [0].Length + ")");
+		//data=args;
+	//	dirty = true;
+	//}
+>>>>>>> 2db63d233229d1199c808e9e8598b8f2e94b7d12
 
 	void Update(){
 
@@ -33,11 +49,19 @@ public class WorldBuilder : MonoBehaviour {
 	void Draw(){
 	
 
+<<<<<<< HEAD
 		if (data == null || !dirty)
 			return;
 		//Debug.Log (array);
 
 		for (int i = 0; i < 480; i++) {
+=======
+		//if (data == null || !dirty)
+		//	return;
+		//Debug.Log (array);
+
+		/*for (int i = 0; i < 480; i++) {
+>>>>>>> 2db63d233229d1199c808e9e8598b8f2e94b7d12
 			for (int j = 0; j < 640; j++) {
 
 				//Debug.Log (data.data [i] [j]);
@@ -55,7 +79,11 @@ public class WorldBuilder : MonoBehaviour {
 		}
 
 		Debug.Log ("Drawn");
+<<<<<<< HEAD
 		dirty = false;
+=======
+		dirty = false;*/
+>>>>>>> 2db63d233229d1199c808e9e8598b8f2e94b7d12
 
 	}
 

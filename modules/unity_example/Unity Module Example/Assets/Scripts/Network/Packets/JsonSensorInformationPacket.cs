@@ -2,7 +2,7 @@
 
 public class JsonSensorInformationPacket : Packet
 {
-    protected override void onHandlePacket(ModuleClient client)
+    protected override void onHandlePacket(IClient client)
     {
         int robotLength = consume(4).asInt();
 

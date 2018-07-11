@@ -2,7 +2,7 @@ import socket
 import sys
 import atexit
 from threading import Thread
-from util.bytebuffer import ByteBuffer
+from utils.bytebuffer import ByteBuffer
 from config import IP, PORT, BUFFER, NAME
 import json
 from collections import namedtuple

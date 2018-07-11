@@ -15,7 +15,7 @@ public class EventButton : MonoBehaviour
 
 	public void TriggerEvent()
 	{
-		DepthEvent e = new DepthEvent();
+		/*DepthEvent e = new DepthEvent();
 		e.data = new[]
 		{
 			new int[10],
@@ -23,6 +23,6 @@ public class EventButton : MonoBehaviour
 			new int[10]
 		};
 
-		ModuleClient.Instance.TriggerEvent(e);
+		ModuleClient.Instance.TriggerEvent(e);*/
 	}
 }

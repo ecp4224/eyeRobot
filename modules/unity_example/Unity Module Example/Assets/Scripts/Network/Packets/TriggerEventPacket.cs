@@ -2,7 +2,7 @@
 
 public class TriggerEventPacket : Packet
 {
-    protected override void onWritePacket(ModuleClient client, params object[] args)
+    protected override void onWritePacket(IClient client, params object[] args)
     {
         IEvent @event = args[0] as IEvent;
         string filter = args[1] as string;

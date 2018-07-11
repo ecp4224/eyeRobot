@@ -1,0 +1,3 @@
+# Eyerobot OpenAI Module
+
+This package is for the EyeRobot AI. It is an OpenAI gym that implements the path finding logic for the EyeRobot

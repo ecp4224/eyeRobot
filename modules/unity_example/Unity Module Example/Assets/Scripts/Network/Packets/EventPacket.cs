@@ -2,7 +2,7 @@
 
 public class EventPacket : Packet
 {
-    protected override void onHandlePacket(ModuleClient client)
+    protected override void onHandlePacket(IClient client)
     {
         int packetSize = consume(4).asInt(); //Ignore
 
