@@ -42,6 +42,11 @@ public class SimpleCarController : MonoBehaviour
 
 	public float endTime;
 
+	public static SimpleCarController instance;
+
+	void Awake(){
+		instance = this;
+	}
 
 	void OnTriggerEnter(Collider col)
 	{
@@ -95,8 +100,7 @@ public class SimpleCarController : MonoBehaviour
 //			if(timeForTable>0)
 //				Debug.Log(timeForTable);
 		}
-		
-		
+
 		if (Input.GetKey(KeyCode.W))
 		{
 			this.transform.localPosition += transform.forward * moveSpeed * Time.deltaTime;
@@ -140,11 +144,9 @@ public class SimpleCarController : MonoBehaviour
 			controllerValue3 = 0f;
 			controllerValue4 = 0f;
 		}
-		
 		if (NetworkInput.GetKey(KeyCode.W))
 		{
 			this.transform.localPosition += transform.forward * moveSpeed * Time.deltaTime;
-
 			isTimer = true;
 			controllerValue1=maxSpeed;
 			controllerValue2 = maxSpeed;
@@ -153,7 +155,6 @@ public class SimpleCarController : MonoBehaviour
 		}else if (NetworkInput.GetKey(KeyCode.S))
 		{
 			this.transform.localPosition -= transform.forward * moveSpeed * Time.deltaTime;
-
 			controllerValue1=-maxSpeed;
 			controllerValue2 = -maxSpeed;
 			controllerValue3 = -maxSpeed;

@@ -6,21 +6,20 @@ public class Playground : MonoBehaviour
 {
 	[DistanceVariable]
 	public float distanceToDestination;
-	
+
 	[Header("Setup")]
 	public float X=10f;
 	public float Y=10f;
 	public GameObject DestinationPrefab;
 
 	[Header("Debugging")]
+	public GameObject currentDestination;
 	public Vector3 destination;
 	public Vector3 offset;
 	public float startTime;
 	public bool isDest=false;
 
 	public static Playground instance;
-	
-
 
 
 	void Awake(){
@@ -46,6 +45,11 @@ public class Playground : MonoBehaviour
 			//Debug.Log ("Destination: " + destination);
 		
 		}
+
+		if (currentDestination != null)
+			distanceToDestination = Vector3.Distance (SimpleCarController.instance.transform.position, currentDestination.transform.position);
+
+		Debug.Log (distanceToDestination);
 	
 	
 	
@@ -61,7 +65,10 @@ public class Playground : MonoBehaviour
 	}
 
 	public void SetDestination(){
-	
+
+		if(currentDestination!=null) 
+			return;
+		
 		isDest = true;
 		RaycastHit hit;
 		Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
@@ -71,7 +78,8 @@ public class Playground : MonoBehaviour
 			//destination = hit.point;
 
 			GameObject destination = Instantiate (DestinationPrefab, hit.point+offset, Quaternion.identity) as GameObject;
-			
+
+			currentDestination = destination;
 		}
 	
 	}
