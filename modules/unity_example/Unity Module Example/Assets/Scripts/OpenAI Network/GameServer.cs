@@ -81,6 +81,14 @@ public class GameServer : AsyncMonoBehavior
 				}
 			}
 		}
+
+		if (scorer == null)
+		{
+			Debug.LogError("Found no DistanceVariable attribute in provided GameManager " +
+			               "(" + script.GetType().FullName + ")! Make a float variable" +
+			               "representing the robot's distance to the current goal and put [DistanceVariable] above" +
+			               "the new variable. This variable will be monitored and sent to OpenAI to calculate score");
+		}
 	}
 
 	public void OnReset(UnityAction<int, float> GameReset)
@@ -151,6 +159,15 @@ public class GameServer : AsyncMonoBehavior
 
 	public void RequestScoring(IClient client)
 	{
+		if (scorer == null)
+		{
+			Debug.LogError("OpenAI requested current distance but no monitor is active! Make a float variable" +
+			               "representing the robot's distance to the current goal and put [DistanceVariable] above" +
+			               "the new variable. This variable will be monitored and sent to OpenAI to calculate score." +
+			               "Once the variable is made, invoke GameServer.Instance.RegisterGameManager() to register" +
+			               "the script holding the variable.");
+		}
+		
 		_actions.Enqueue(delegate
 		{
 			float distance = scorer();
