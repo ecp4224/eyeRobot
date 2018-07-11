@@ -1,4 +1,5 @@
-
+modules/unity_example/Unity Module Example/UnityPackageManager/*
+modules/eyerobot_openai/.idea/*
 modules/python_example/.idea/*
 
 modules/unity_example/Unity\ Module\ Example/Assets/AudienceNetwork/*

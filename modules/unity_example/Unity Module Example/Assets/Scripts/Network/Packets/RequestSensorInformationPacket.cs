@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class RequestSensorInformationPacket : Packet {
 
-	protected override void onWritePacket(ModuleClient client, params object[] args)
+	protected override void onWritePacket(IClient client, params object[] args)
 	{
 		string robot = (string)args[0];
 		string filter = (string) args[1];

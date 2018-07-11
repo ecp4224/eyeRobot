@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class OkPacket : Packet {
 
-	protected override void onHandlePacket(ModuleClient client)
+	protected override void onHandlePacket(IClient client)
 	{
 		bool val = consume(1).asBoolean();
 		

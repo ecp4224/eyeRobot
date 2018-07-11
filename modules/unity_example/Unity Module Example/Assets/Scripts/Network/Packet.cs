@@ -9,8 +9,6 @@ using UnityEngine;
 
 /**
  * This class builds a Packet for a specified {@link Server} and a specified {@link Client}
- * @param <T> The type of {@link Server} this packet is meant for
- * @param <C> The type of {@link Client} this packet is meant for
  */
 public class Packet : MonoBehaviour
 {
@@ -22,7 +20,7 @@ public class Packet : MonoBehaviour
     [NonSerialized]
     private MemoryStream tempWriter;
     [NonSerialized]
-    private ModuleClient client;
+    private IClient client;
     [NonSerialized]
     private bool ended;
     [NonSerialized]
@@ -33,7 +31,7 @@ public class Packet : MonoBehaviour
     [NonSerialized]
     private byte[] preservedData;
     
-    public void reuseFor(ModuleClient client) {
+    public void reuseFor(IClient client) {
         this.client = client;
         ended = false;
         pos = 0;
@@ -112,7 +110,7 @@ public class Packet : MonoBehaviour
             int i = 0;
             while (pos < endPos)
             {
-                int r = client.serverSocket.Receive(data, i, length - i, 0);
+                int r = client.socket.Receive(data, i, length - i, 0);
                 if (r == -1)
                     throw new IndexOutOfRangeException();
                 pos += r;
@@ -149,7 +147,7 @@ public class Packet : MonoBehaviour
 
         if (udpData == null) {
             byte[] data = new byte[1];
-            int r = client.serverSocket.Receive(data, 0, 1, 0);
+            int r = client.socket.Receive(data, 0, 1, 0);
             pos += data.Length;
             return new ConsumedData(data);
         } else {
@@ -378,7 +376,7 @@ public class Packet : MonoBehaviour
      * @return This packet
      * @throws IOException If there was a problem reading the packet
      */
-    public Packet handlePacket(ModuleClient client, byte[] data) {
+    public Packet handlePacket(IClient client, byte[] data) {
         this.client = client;
         this.udpData = data;
         tempWriter = null;
@@ -389,7 +387,7 @@ public class Packet : MonoBehaviour
         return this;
     }
 
-    public Packet handlePacket(ModuleClient client) {
+    public Packet handlePacket(IClient client) {
         this.client = client;
         this.udpData = null;
         tempWriter = null;
@@ -406,7 +404,7 @@ public class Packet : MonoBehaviour
      * @return This packet
      * @throws IOException If there was a problem reading the packet
      */
-    public Packet writePacket(ModuleClient client, params object[] args)
+    public Packet writePacket(IClient client, params object[] args)
     {
         this.client = client;
         preserve = false;
@@ -415,7 +413,7 @@ public class Packet : MonoBehaviour
         return this;
     }
 
-    public Packet writeAndPreservePacket(ModuleClient client, params object[] args)
+    public Packet writeAndPreservePacket(IClient client, params object[] args)
     {
         this.client = client;
         preserve = true;
@@ -423,11 +421,11 @@ public class Packet : MonoBehaviour
         return this;
     }
 
-    protected virtual void onHandlePacket(ModuleClient client) {
+    protected virtual void onHandlePacket(IClient client) {
         throw new ArgumentException();
     }
 
-    protected virtual void onWritePacket(ModuleClient client, params object[] args) {
+    protected virtual void onWritePacket(IClient client, params object[] args) {
         throw new ArgumentException();
     }
 
