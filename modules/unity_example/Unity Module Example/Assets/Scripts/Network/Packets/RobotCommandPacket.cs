@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class RobotCommandPacket : Packet {
 
-	protected override void onWritePacket(ModuleClient client, params object[] args)
+	protected override void onWritePacket(IClient client, params object[] args)
 	{
 		int motor1 = (int) args[0];
 		int motor2 = (int) args[1];

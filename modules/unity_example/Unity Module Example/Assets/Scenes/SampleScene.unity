@@ -1765,6 +1765,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2331e4839209940b299da476fb7f8621, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  distance: 0
   isTimer: 0
   motor1: 0
   motor2: 0
@@ -3943,6 +3944,48 @@ Transform:
   m_Father: {fileID: 1033337071}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 89.96001}
+--- !u!1001 &1746622627
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 4562490773851200, guid: b2d7a53108c1140acb91beb003eacf4b, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4562490773851200, guid: b2d7a53108c1140acb91beb003eacf4b, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4562490773851200, guid: b2d7a53108c1140acb91beb003eacf4b, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4562490773851200, guid: b2d7a53108c1140acb91beb003eacf4b, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4562490773851200, guid: b2d7a53108c1140acb91beb003eacf4b, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4562490773851200, guid: b2d7a53108c1140acb91beb003eacf4b, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4562490773851200, guid: b2d7a53108c1140acb91beb003eacf4b, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4562490773851200, guid: b2d7a53108c1140acb91beb003eacf4b, type: 2}
+      propertyPath: m_RootOrder
+      value: 10
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 100100000, guid: b2d7a53108c1140acb91beb003eacf4b, type: 2}
+  m_IsPrefabParent: 0
 --- !u!1 &1778189647
 GameObject:
   m_ObjectHideFlags: 0

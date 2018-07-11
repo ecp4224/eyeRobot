@@ -11,7 +11,7 @@ using UnityEngine.Audio;
 using UnityEngine.Events;
 using Newtonsoft.Json;
 
-public class ModuleClient : AsyncMonoBehavior
+public class ModuleClient : AsyncMonoBehavior, IClient
 {
 	// State object for receiving data from the server.  
 	public class StateObject {  
@@ -44,6 +44,11 @@ public class ModuleClient : AsyncMonoBehavior
 	public short port = 1337;
 
 	public string moduleName = "Example";
+	
+	public Socket socket
+	{
+		get { return serverSocket; }
+	}
 
 	[HideInInspector]
 	public Socket serverSocket;

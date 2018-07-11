@@ -22,7 +22,7 @@ def onCommand(data):
         motor4 = -motor4
 
     # Echo back the command, along with some test variables
-    client.send_info_packet(motor1, motor2, motor3, motor4, 0.4, 0.7, bytearray([0] * 10), bytearray([0] * 20))
+    client.send_info_packet(motor1, motor2, motor3, motor4)
 
 
 client = RobotClient(on_command=onCommand)

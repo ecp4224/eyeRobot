@@ -14,6 +14,9 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody))]
 public class SimpleCarController : MonoBehaviour
 {
+	[DistanceVariable]
+	public float distance;
+	
 	public bool isTimer;
 	private float timeForTable;
 	
@@ -47,6 +50,8 @@ public class SimpleCarController : MonoBehaviour
 	
 	void Start()
 	{
+		GameServer.Instance.RegisterGameManager(this);
+		
 		_rigidbody = GetComponent<Rigidbody>();
 		ModuleClient.Instance.RequestSensorInformation("eyeRobot", OnInfoUpdate);
 		ModuleClient.Instance.ListenFor<DepthEvent>(OnDepthData);

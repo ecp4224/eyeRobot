@@ -2,4 +2,4 @@ IP = "127.0.0.1"
 # PEER_IP = "192.168.1.255"
 PORT = 1337
 BUFFER = 1024
-NAME = "kinect"
+NAME = "eyeRobot"
