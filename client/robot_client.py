@@ -4,7 +4,7 @@ import atexit
 from command import Command
 from threading import Thread
 from util.bytebuffer import ByteBuffer
-from config import IP, PORT, BUFFER, NAME
+from config import IP, PORT, BUFFER, NAME, PEER_IP
 
 
 class RobotClient:
@@ -12,8 +12,6 @@ class RobotClient:
     connected = False
     server_address = (IP, PORT)
     packet_number = 0
-    packet_number_rgb = 0
-    packet_number_depth = 0
     read_thread = None
     on_command = None
 
@@ -34,17 +32,17 @@ class RobotClient:
             print 'Failed to create socket'
             sys.exit()
 
-    def raw_connect(self):
+    def connect(self):
+        # self.socket.connect(self.server_address)
+
         self.connected = True
 
         self.read_thread = Thread(target=self.start_reading)
         self.read_thread.start()
 
-        atexit.register(self.disconnect)
-
-    def connect(self):
-        self.raw_connect()
         self.send_session_packet()
+
+        atexit.register(self.disconnect)
 
     def disconnect(self):
         self.connected = False
@@ -52,60 +50,29 @@ class RobotClient:
         self.socket.shutdown(socket.SHUT_WR)
 
     def send_session_packet(self):
-        arr = bytearray([0x00, 0, len(NAME)])
+        arr = bytearray([0x00, 0, len(NAME), len(PEER_IP)])
         arr.extend(NAME)
+        arr.extend(PEER_IP)
 
         self.socket.sendto(arr, self.server_address)
 
-    def send_depth_packet(self, depth):
-        total_size = 12 + len(depth)
-
-        array = bytearray([0] * total_size)
-        buf = ByteBuffer(array, 0, total_size)
-
-        buf.put_SLInt64(self.packet_number_depth)
-        buf.put_SLInt32(len(depth))
-        buf.put_bytes(depth, 0, len(depth))
-
-        to_send = bytearray([0] * (total_size + 1))
-        to_send[0] = 0x10
-        buf.set_position(0)
-        buf.get(to_send, 1, total_size)
-
-        self.socket.sendto(to_send, self.server_address)
-
-        self.packet_number_depth += 1
-
-    def send_rgb_packet(self, rgb):
-        total_size = 12 + len(rgb)
-
-        array = bytearray([0] * total_size)
-        buf = ByteBuffer(array, 0, total_size)
-
-        buf.put_SLInt64(self.packet_number_rgb)
-        buf.put_SLInt32(len(rgb))
-        buf.put_bytes(rgb, 0, len(rgb))
-
-        to_send = bytearray([0] * (total_size + 1))
-        to_send[0] = 0x11
-        buf.set_position(0)
-        buf.get(to_send, 1, total_size)
-
-        self.socket.sendto(to_send, self.server_address)
-
-        self.packet_number_rgb += 1
-
-    def send_info_packet(self, motor1, motor2, motor3, motor4):
-        total_size = 24
+    def send_info_packet(self, motor1, motor2, motor3, motor4, acc, gyro, rgbArray, depthArray):
+        total_size = 40 + len(rgbArray) + len(depthArray)
 
         array = bytearray([0] * total_size)
         buf = ByteBuffer(array, 0, total_size)
 
         buf.put_SLInt64(self.packet_number)
+        buf.put_SLInt32(len(rgbArray))
+        buf.put_SLInt32(len(depthArray))
+        buf.put_LFloat32(acc)
+        buf.put_LFloat32(gyro)
         buf.put_SLInt32(motor1)
         buf.put_SLInt32(motor2)
         buf.put_SLInt32(motor3)
         buf.put_SLInt32(motor4)
+        buf.put_bytes(rgbArray, 0, len(rgbArray))
+        buf.put_bytes(depthArray, 0, len(depthArray))
 
         to_send = bytearray([0] * (total_size + 1))
         to_send[0] = 0x02
