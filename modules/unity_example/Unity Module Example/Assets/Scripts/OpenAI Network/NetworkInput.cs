@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class NetworkInput : BindableMonoBehavior
+public class NetworkInput : MonoBehaviour
 {
 
     public static NetworkInput Instance
@@ -9,9 +9,6 @@ public class NetworkInput : BindableMonoBehavior
     }
     
     private static NetworkInput _instance;
-    
-    [BindComponent]
-    private GameServer server;
 
     [HideInInspector]
     public bool[] keyMap = new bool[1024];

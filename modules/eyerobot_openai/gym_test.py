@@ -1,5 +1,4 @@
 import gym
-import eyerobot_gym
 
 env = gym.make('eyerobot-gym-v0')
 
