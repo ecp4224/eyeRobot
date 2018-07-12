@@ -1,6 +1,6 @@
 import numpy as np
 from keras.models import Sequential
-from keras.layers import Conv2D, Dense, Flatten, MaxPooling
+from keras.layers import Conv2D, Dense, Flatten, MaxPooling, Dropout
 from keras.optimizers import RMSprop
 import skimage
 import cv2
@@ -10,8 +10,8 @@ from IPython.display import clear_output
 #rescale to 160x120
 #doing 80x80 for now
 
-cap = cv2.VideoCapture(0) #change this to the depth camera later
-proc_img = skimage.transform.resize(cap,(80,80))
+proc_img = cv2.VideoCapture(0) #change this to the depth camera later
+proc_img = skimage.transform.resize(proc_img,(80,80))
 proc_img = skimage.exposure.rescale_intensity(proc_img, out_range=(0,255))
 proc_img = proc_img.reshape(1,1,proc_img.shape[0], proc_img.shape[1])
 s_img = np.append(proc_img, s_t[:,:3,:,:], axis=1) #stacked image, 4 frames together, not sure if we need this?
@@ -46,7 +46,11 @@ model.add(Dense(10, activation='softmax'))
 model.add(Conv2D(164, 8, 8, subsample=(4,4), activation='relu', input_shape=input_shape))
 model.add(Conv2D(150, 4, 4, subsample=(2,2), activation='relu'))
 model.add(Conv2D(150, 3, 3, subsample=(1,1), activation='relu'))
+model.add(MaxPooling(pool_size=(2,2))) #dont know what this does
+model.add(Dropout(0.25)) #dont know what this does
+
 model.add(Flatten())
+model.add(LSTM(20, return_sequences=True)) #what does this do!!!! 
 model.add(Dense(512, activation='relu'))
 model.add(Dense(4, activation='relu')) #4 is the output
 rms = RMSprop() #related to learning rate
@@ -115,5 +119,7 @@ for i in range(epochs):
         if reward != -1: #if reached terminal state, update game status
             status = 0
         clear_output(wait=True)
+    wait = input("Starting new epoch. Place the robot somewhere in the room and press enter")
     if epsilon > 0.1: #decrement epsilon over time
         epsilon -= (1/epochs)
+proc_img.release()
