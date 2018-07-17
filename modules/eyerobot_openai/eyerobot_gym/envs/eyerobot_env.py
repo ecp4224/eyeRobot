@@ -21,14 +21,24 @@ class EyeRobotEnv(gym.Env):
     timer = 60
     step_count = 0
 
+    current_depth_frame = None
+    current_rgb_frame = None
+    depth_frame_timestamp = 0
+    rgb_frame_timestamp = 0
+
+    last_action = 0
+
     acceleration = [0, 0, 0]
     velocity = [0, 0, 0]
     new_distance = 0
+    score = 0
+    first_distance = 0
     distance_count = 0
     socket = None
     connected = False
     server_address = (IP, PORT)
     read_thread = None
+    kinect_thread = None
     packet_map = [None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
 
     def on_score(self, packet):
@@ -43,14 +53,12 @@ class EyeRobotEnv(gym.Env):
         self.distance_count += 1
 
     def send_depth(self, dev, data, timestamp):
-        # do nothing
-        # but freenect still requires this to exist for some reason
-        timestamp += 1
+        self.current_depth_frame = data
+        self.depth_frame_timestamp = timestamp
 
-    def send_rgb(dev, data, timestamp):
-        # do nothing
-        # but freenect still requires this to exist for some reason
-        timestamp += 1
+    def send_rgb(self, dev, data, timestamp):
+        self.current_rgb_frame = data
+        self.current_rgb_frame = timestamp
 
     def body(self, dev, *args):
         acc = freenect.get_accel(dev)
@@ -71,7 +79,8 @@ class EyeRobotEnv(gym.Env):
         self.acceleration[1] = int(acc[1])
         self.acceleration[2] = int(acc[2])
 
-        self.send_kinect_info(self.velocity, [accX, accY, accZ])
+        if self.connected:
+            self.send_kinect_info(self.velocity, [accX, accY, accZ])
 
     """EyeRobot OpenAI Gym
         
@@ -105,7 +114,7 @@ class EyeRobotEnv(gym.Env):
         self.action_space = spaces.Discrete(4)
         self.observation_space = spaces.Discrete(4)
 
-        self.observation = 0
+        self.observation = [0,0,0,0]
 
         self.packet_map[0x06] = self.on_score
 
@@ -116,11 +125,6 @@ class EyeRobotEnv(gym.Env):
             sys.exit()
 
         print("init")
-
-        if ENABLE_KINECT:
-            freenect.runloop(depth=self.send_depth,
-                             video=self.send_rgb,
-                             body=self.body)
 
         self.connect()
         self.seed()
@@ -175,6 +179,12 @@ class EyeRobotEnv(gym.Env):
 
         self.socket.send(to_send)
 
+    def start_kinect(self):
+        if ENABLE_KINECT:
+            freenect.runloop(depth=self.send_depth,
+                             video=self.send_rgb,
+                             body=self.body)
+
     def connect(self):
         self.socket.connect(self.server_address)
 
@@ -182,6 +192,9 @@ class EyeRobotEnv(gym.Env):
 
         self.read_thread = Thread(target=self.start_reading)
         self.read_thread.start()
+
+        self.kinect_thread = Thread(target=self.start_kinect)
+        self.kinect_thread.start()
 
         atexit.register(self.disconnect)
 
@@ -204,12 +217,14 @@ class EyeRobotEnv(gym.Env):
         else:
             key = D_KEY
 
+        first_step = self.new_distance == 0
+
         print("Sending key press")
         # Send Key Press to Unity
         self.send_key_event(key, 1)
 
         # Wait 1 second
-        time.sleep(1)
+        time.sleep(KEY_DELAY)
 
         print("Sending key release")
         # Send Key Release to Unity
@@ -224,11 +239,23 @@ class EyeRobotEnv(gym.Env):
 
         while cur_score == self.distance_count:
             print("Waiting for score..")
-            time.sleep(1)
+            time.sleep(SCORE_DELAY)
 
         print("Calculating observation and reward")
         difference = prev_distance - self.new_distance
 
+        done = False
+
+        # If the distance is -1, then it fell off the playground
+        if self.new_distance == -1:
+            done = True
+            self.observation = [0, self.new_distance, self.last_action, self.step_count]
+            self.score = -1
+        # If the distance is -2, then it won!
+        elif self.new_distance == -2:
+            done = True
+            self.score *= 2
+            self.observation = [0, self.new_distance, self.last_action, self.step_count]
         # If the difference between the old distance and the new distance
         # is less than the negative of the tolerance
         # then the robot has moved further away
@@ -239,42 +266,46 @@ class EyeRobotEnv(gym.Env):
         # difference = 100 - 150
         # difference = -50
         # difference < -1 = TRUE
-        if difference < -DISTANCE_TOLERANCE:
-            self.observation = 1
+        elif difference < -DISTANCE_TOLERANCE:
+            self.observation = [-1, self.new_distance, self.last_action, self.step_count]
+            self.score -= 2
         # If the difference between the old distance and the new distance
         # is greater than the tolerance
         # then the robot has moved closer
         elif difference > DISTANCE_TOLERANCE:
-            self.observation = 3
+            self.observation = [1, self.new_distance, self.last_action, self.step_count]
+            self.score += 2
         # Otherwise the difference is inside the tolerance and therefore
         # hasn't made any progress
         else:
-            self.observation = 2
+            self.observation = [2, self.new_distance, self.last_action, self.step_count]
 
-        reward = 0
-        done = False
-
-        if self.new_distance <= GOAL_TOLERANCE:
+        if GOAL_TOLERANCE >= self.new_distance > 0:
             done = True
-            reward = 1
+            self.score *= 2
+            self.observation = [0, self.new_distance, self.last_action, self.step_count]
+
+        self.last_action = action
 
         self.step_count += 1
 
         if self.step_count >= MAX_STEPS:
             done = True
 
-        return self.observation, reward, done, {"distance": self.new_distance, "steps": self.step_count}
+        return (self.observation, self.current_depth_frame), self.score, done, {"distance": self.new_distance, "steps": self.step_count}
 
     def reset(self):
         self.step_count = 0
-        self.observation = 0
+        self.observation = [0, 0, 0, 0]
         self.distance_count = 0
         self.new_distance = 0
+        self.first_distance = 0
+        self.score = 0
         self.episode += 1
 
         self.send_game_reset()
 
-        return self.observation
+        return self.observation, self.current_depth_frame
 
     def safe_read(self, count):
         arr = bytearray()

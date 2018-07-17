@@ -14,6 +14,10 @@ using System.Collections.Generic;
 //[RequireComponent(typeof(Rigidbody))]
 public class SimpleCarController : MonoBehaviour
 {
+	private float unity_delay = .35f;
+	private bool unity_toMove = false;
+	public bool force_movement = true;
+	
 	public bool isTimer;
 	private float timeForTable;
 
@@ -55,24 +59,20 @@ public class SimpleCarController : MonoBehaviour
 			//Debug.Log(col.gameObject.name);
 			endTime = Time.time;
 			Debug.Log ("Time of Completion: " + (endTime - Playground.instance.startTime));
-			Playground.instance.isDest = false;
-			Destroy (col.gameObject);
+			//Playground.instance.isDest = false;
+			//Destroy (col.gameObject);
+
+			Playground.instance.distanceToDestination = -2;
+
+		}else if (col.CompareTag("FLoor"))
+		{
+			Playground.instance.distanceToDestination = -1;
 		}
 	}
 	
 	void Start()
 	{
-		GameServer.Instance.RegisterGameManager(this);
-		GameServer.Instance.OnMovement(OnAccelData);
 		ModuleClient.Instance.RequestSensorInformation("eyeRobot", OnInfoUpdate);
-	}
-
-	void OnAccelData (Vector3 acceleration, Vector3 velocity)
-	{
-		Debug.Log ("Got args Acceleration: x = " + acceleration.x + " y = " + acceleration.y + " z = " + acceleration.z + " .");
-
-		accData=acceleration;
-		dirty = true;
 	}
 
 	public static double Yaw(Vector4 quaternion){
@@ -103,39 +103,57 @@ public class SimpleCarController : MonoBehaviour
 
 		if (Input.GetKey(KeyCode.W))
 		{
-			this.transform.localPosition += transform.forward * moveSpeed * Time.deltaTime;
 
-			isTimer = true;
+			//isTimer = true;
 			controllerValue1=maxSpeed;
 			controllerValue2 = maxSpeed;
 			controllerValue3 = maxSpeed;
 			controllerValue4 = maxSpeed;
+			
+			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+	
+			StartCoroutine(DelayUnityMovement(unity_delay));
+			if(unity_toMove)
+				this.transform.localPosition += transform.forward * moveSpeed * Time.deltaTime;
+			
 		}else if (Input.GetKey(KeyCode.S))
 		{
-			this.transform.localPosition -= transform.forward * moveSpeed * Time.deltaTime;
-
 			controllerValue1=-maxSpeed;
 			controllerValue2 = -maxSpeed;
 			controllerValue3 = -maxSpeed;
 			controllerValue4 = -maxSpeed;
+			
+			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+	
+			StartCoroutine(DelayUnityMovement(unity_delay));
+			if(unity_toMove)
+				this.transform.localPosition -= transform.forward * moveSpeed * Time.deltaTime;
 		}
 		else if (Input.GetKey(KeyCode.A))
 		{
-			this.transform.Rotate (-Vector3.up * rotateSpeed * Time.deltaTime);
-
 			controllerValue1=-maxSpeed;
 			controllerValue2 = maxSpeed;
 			controllerValue3 =-maxSpeed;
 			controllerValue4 =maxSpeed;
+			
+			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+	
+			StartCoroutine(DelayUnityMovement(unity_delay));
+			if(unity_toMove)
+				this.transform.Rotate (-Vector3.up * rotateSpeed * Time.deltaTime);
 		}
 		else if (Input.GetKey(KeyCode.D))
 		{
-			this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
-
 			controllerValue1=maxSpeed;
 			controllerValue2 = -maxSpeed;
 			controllerValue3 =maxSpeed;
 			controllerValue4 =-maxSpeed;
+			
+			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+	
+			StartCoroutine(DelayUnityMovement(unity_delay));
+			if(unity_toMove)
+				this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
 		}
 		else
 		{
@@ -143,40 +161,64 @@ public class SimpleCarController : MonoBehaviour
 			controllerValue2 = 0f;
 			controllerValue3 = 0f;
 			controllerValue4 = 0f;
+			
+			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+	
 		}
+		
 		if (NetworkInput.GetKey(KeyCode.W))
 		{
-			this.transform.localPosition += transform.forward * moveSpeed * Time.deltaTime;
-			isTimer = true;
+
+			//isTimer = true;
 			controllerValue1=maxSpeed;
 			controllerValue2 = maxSpeed;
 			controllerValue3 = maxSpeed;
 			controllerValue4 = maxSpeed;
+			
+			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+	
+			StartCoroutine(DelayUnityMovement(unity_delay));
+			if(unity_toMove)
+				this.transform.localPosition += transform.forward * moveSpeed * Time.deltaTime;
+			
 		}else if (NetworkInput.GetKey(KeyCode.S))
 		{
-			this.transform.localPosition -= transform.forward * moveSpeed * Time.deltaTime;
 			controllerValue1=-maxSpeed;
 			controllerValue2 = -maxSpeed;
 			controllerValue3 = -maxSpeed;
 			controllerValue4 = -maxSpeed;
+			
+			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+			
+			StartCoroutine(DelayUnityMovement(unity_delay));
+			if(unity_toMove)
+				this.transform.localPosition -= transform.forward * moveSpeed * Time.deltaTime;
 		}
 		else if (NetworkInput.GetKey(KeyCode.A))
 		{
-			this.transform.Rotate (-Vector3.up * rotateSpeed * Time.deltaTime);
-
 			controllerValue1=-maxSpeed;
 			controllerValue2 = maxSpeed;
 			controllerValue3 =-maxSpeed;
 			controllerValue4 =maxSpeed;
+			
+			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+			
+			StartCoroutine(DelayUnityMovement(unity_delay));
+			if(unity_toMove)
+				this.transform.Rotate (-Vector3.up * rotateSpeed * Time.deltaTime);
 		}
 		else if (NetworkInput.GetKey(KeyCode.D))
 		{
-			this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
-
 			controllerValue1=maxSpeed;
 			controllerValue2 = -maxSpeed;
 			controllerValue3 =maxSpeed;
 			controllerValue4 =-maxSpeed;
+			
+			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+			
+			StartCoroutine(DelayUnityMovement(unity_delay));
+			if(unity_toMove)
+				this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
 		}
 		else
 		{
@@ -184,9 +226,19 @@ public class SimpleCarController : MonoBehaviour
 			controllerValue2 = 0f;
 			controllerValue3 = 0f;
 			controllerValue4 = 0f;
+			
+			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+	
 		}
 
-		//ModuleClient.Instance.SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+	}
+
+	private void SendRobotCommand(int val1, int val2, int val3, int val4)
+	{
+		if (ModuleClient.Instance != null)
+		{
+			ModuleClient.Instance.SendRobotCommand(val1, val2, val3, val4);
+		}
 	}
 
 	private void OnInfoUpdate(SensorInformation arg0)
@@ -200,24 +252,24 @@ public class SimpleCarController : MonoBehaviour
 
 		//reference to z accel
 
-		if (Input.GetKey(KeyCode.W))
-		{
-			//Debug.Log ("did eddie lie to me");
-			float forwardMult=1.11f;
-			this.transform.localPosition += transform.forward * moveSpeed * forwardMult * Time.deltaTime;
-		}else if (Input.GetKey(KeyCode.S))
-		{
-			this.transform.localPosition -= transform.forward * moveSpeed * Time.deltaTime;
-		}
-		else if (Input.GetKey(KeyCode.A))
-		{
-			this.transform.Rotate (-Vector3.up * rotateSpeed * Time.deltaTime);
-		}
-		else if (Input.GetKey(KeyCode.D))
-		{
-			//Debug.Log ("this rotating right");
-			this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
-		}
+//		if (Input.GetKey(KeyCode.W))
+//		{
+//			//Debug.Log ("did eddie lie to me");
+//			float forwardMult=1.11f;
+//			this.transform.localPosition += transform.forward * moveSpeed * forwardMult * Time.deltaTime;
+//		}else if (Input.GetKey(KeyCode.S))
+//		{
+//			this.transform.localPosition -= transform.forward * moveSpeed * Time.deltaTime;
+//		}
+//		else if (Input.GetKey(KeyCode.A))
+//		{
+//			this.transform.Rotate (-Vector3.up * rotateSpeed * Time.deltaTime);
+//		}
+//		else if (Input.GetKey(KeyCode.D))
+//		{
+//			//Debug.Log ("this rotating right");
+//			this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
+//		}
 	}
 
 	// finds the corresponding visual wheel
@@ -233,6 +285,21 @@ public class SimpleCarController : MonoBehaviour
 		Vector3 position;
 		Quaternion rotation;
 		collider.GetWorldPose(out position, out rotation);
+	}
+
+	IEnumerator DelayUnityMovement(float waitTime)
+	{
+		yield return new WaitForSeconds(waitTime);
+
+		//if (!TestStop.instance.isMoving) return;
+		//CheckPhysicalMovement();
+		
+		unity_toMove = PhysicalIsMoving() || force_movement;
+	}
+
+	public bool PhysicalIsMoving()
+	{
+		return TestStop.instance.isMoving;
 	}
 
 }
