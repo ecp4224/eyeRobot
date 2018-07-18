@@ -137,7 +137,10 @@ public class GameServer : AsyncMonoBehavior
 	{
 		while (_actions.Count > 0)
 		{
-			_actions.Dequeue()();
+			var temp = _actions.Dequeue();
+			if (temp == null)
+				continue;
+			temp();
 		}
 	}
 

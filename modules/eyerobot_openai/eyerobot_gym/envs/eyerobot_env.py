@@ -292,7 +292,7 @@ class EyeRobotEnv(gym.Env):
         if self.step_count >= MAX_STEPS:
             done = True
 
-        return (self.observation, self.current_depth_frame), self.score, done, {"distance": self.new_distance, "steps": self.step_count}
+        return [self.observation, self.current_depth_frame], self.score, done, {"distance": self.new_distance, "steps": self.step_count}
 
     def reset(self):
         self.step_count = 0
@@ -305,7 +305,7 @@ class EyeRobotEnv(gym.Env):
 
         self.send_game_reset()
 
-        return self.observation, self.current_depth_frame
+        return [self.observation, self.current_depth_frame]
 
     def safe_read(self, count):
         arr = bytearray()
