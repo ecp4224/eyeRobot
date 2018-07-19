@@ -96,13 +96,8 @@ for i in range(epochs):
     while not done:
         blockPrint()
         state = np.array(state).reshape(1,4)
-<<<<<<< HEAD
         depth = np.reshape(depth, (1, 640, 480))
         # run q on state s to get all values for each action
-=======
-        depth = np.reshape(depth, (1, 480, 640))
-        #run q on s to get values for action
->>>>>>> 3928313c67daa738acfaa339942f50f6251948b3
         qval = model.predict([depth, state], batch_size=1)
 
         print("Action: " + str(qval))
