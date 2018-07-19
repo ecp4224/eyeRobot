@@ -121,7 +121,7 @@ class EyeRobotEnv(gym.Env):
         try:
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         except socket.error:
-            print 'Failed to create socket'
+            print('Failed to create socket')
             sys.exit()
 
         print("init")
