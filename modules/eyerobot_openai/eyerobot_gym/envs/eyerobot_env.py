@@ -219,6 +219,10 @@ class EyeRobotEnv(gym.Env):
 
         first_step = self.new_distance == 0
 
+        cur_score = self.distance_count
+        prev_distance = self.new_distance
+        prev_timestamp = self.depth_frame_timestamp
+
         print("Sending key press")
         # Send Key Press to Unity
         self.send_key_event(key, 1)
@@ -230,15 +234,16 @@ class EyeRobotEnv(gym.Env):
         # Send Key Release to Unity
         self.send_key_event(key, 0)
 
-        cur_score = self.distance_count
-        prev_distance = self.new_distance
-
         print("Requesting score")
         # Request the current score from Unity
         self.request_score()
 
         while cur_score == self.distance_count:
             print("Waiting for score..")
+            time.sleep(SCORE_DELAY)
+
+        while prev_timestamp == self.depth_frame_timestamp:
+            print("Waiting for new frame..")
             time.sleep(SCORE_DELAY)
 
         print("Calculating observation and reward")
@@ -304,6 +309,10 @@ class EyeRobotEnv(gym.Env):
         self.episode += 1
 
         self.send_game_reset()
+
+        while self.current_depth_frame is None:
+            print("Waiting for frame..")
+            time.sleep(SCORE_DELAY)
 
         return [self.observation, self.current_depth_frame]
 
