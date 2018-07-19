@@ -115,7 +115,7 @@ for i in range(epochs):
         new_depth = np.reshape(new_depth, (1, 480, 640))
 
         enablePrint()
-        print("Got reward " + str(reward))
+        print("reward: " + str(reward))
 
         new_state = np.array(new_state).reshape(1,4)
 
@@ -133,12 +133,12 @@ for i in range(epochs):
             replay[h] = (state, depth, action, reward, new_state, new_depth)
             
             #sample experience replay
-            minibatch = random.sample(replay, batchSize)
-            X_train = []  #holds each state s
-            X2_train = []
+            batch = random.sample(replay, batchSize)
+            x_train = []  #holds each state s
+            x2_train = []
             y_train = []  #class updates
-            for memory in minibatch: #get max of Q(new_state, a)
-                old_state, old_depth, action, reward, new_state, new_depth = memory
+            for mem in batch: #get max of Q(new_state, a)
+                old_state, old_depth, action, reward, new_state, new_depth = mem
                 old_qval = model.predict([old_depth, old_state], batch_size=1)
                 newQ = model.predict([new_depth, new_state], batch_size=1)
                 maxQ = np.max(newQ)
@@ -149,21 +149,21 @@ for i in range(epochs):
                 else:  #terminal state
                     update = reward
                 y[0][action] = update
-                X_train.append(old_state)
-                X2_train.append(old_depth.reshape(480, 640))
+                x_train.append(old_state)
+                x2_train.append(old_depth.reshape(480, 640))
                 y_train.append(y.reshape(4,))
 
-            X_train = np.array(X_train).reshape(batchSize,4)
-            X2_train = np.array(X2_train)
+            x_train = np.array(x_train).reshape(batchSize,4)
+            x2_train = np.array(x2_train)
             y_train = np.array(y_train)
             print("Test #: %s" % (i,))
-            model.fit([X2_train, X_train], y_train, batch_size=batchSize, nb_epoch=1, verbose=1)
+            model.fit([x_train, x2_train], y_train, batch_size=batchSize, nb_epoch=1, verbose=1)
             state = new_state
     
     #this was commented out, but dont we need it?
     if epsilon > 0.1:  #slowly decrease epsilon
         epsilon -= (1.0 / epochs)
-        print("Epsilon: " + str(epsilon))
+        print("epsilon: " + str(epsilon))
 
 #save model to file
 model.save('room1.h5')
