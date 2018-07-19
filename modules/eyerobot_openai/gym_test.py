@@ -35,7 +35,7 @@ def enablePrint():
 # then comment out the line below for loading the model
 # just run the load model line if you already have a trained model saved
 
-input1 = Input(shape=(480,640))
+input1 = Input(shape=(640,480))
 input2 = Input(shape=(4,))
 
 conv1 = Convolution1D(120, 8, activation='relu')(input1)
@@ -81,7 +81,7 @@ for i in range(epochs):
     while not done:
         blockPrint()
         state = np.array(state).reshape(1,4)
-        depth = np.reshape(depth, (1, 480, 640))
+        depth = np.reshape(depth, (1, 640, 480))
         # run q on state s to get all values for each action
         qval = model.predict([depth, state], batch_size=1)
 
@@ -97,7 +97,7 @@ for i in range(epochs):
         new_state = temp[0]
         new_depth = temp[1]
 
-        new_depth = np.reshape(new_depth, (1, 480, 640))
+        new_depth = np.reshape(new_depth, (1, 640, 480))
 
         enablePrint()
         print("Got reward " + str(reward))
@@ -136,7 +136,7 @@ for i in range(epochs):
                     update = reward
                 y[0][action] = update
                 X_train.append(old_state)
-                X2_train.append(old_depth.reshape(480, 640))
+                X2_train.append(old_depth.reshape(640, 480))
                 y_train.append(y.reshape(4,))
 
             X_train = np.array(X_train).reshape(batchSize,4)
