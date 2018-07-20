@@ -2,7 +2,9 @@ IP = "127.0.0.1"
 PORT = 1338
 BUFFER = 2048
 
-ENABLE_KINECT = True
+ENABLE_KINECT = False
+
+OPEN_CL = True
 
 # Unity KeyCode IDs
 W_KEY = 119

@@ -1,17 +1,20 @@
-import gym
-import eyerobot_gym
+import random
+import sys
 
-import h5py  # needed to save/load model
+import gym
+
+from eyerobot_gym.config import OPEN_CL
+
+if OPEN_CL:
+    import plaidml.keras
+
+    plaidml.keras.install_backend()
 
 from keras.models import *
 from keras.layers import *
-from keras.optimizers import RMSprop, Nadam
-import random
-import numpy as np
-import sys
-import os
 
 devnull = open(os.devnull, 'w')
+
 
 # Disable
 def blockPrint():
@@ -24,7 +27,7 @@ def enablePrint():
     sys.stdout = sys.__stdout__
 
 
-#blockPrint()
+# blockPrint()
 
 ######################################
 # following methods train network    #
@@ -35,51 +38,43 @@ def enablePrint():
 # then comment out the line below for loading the model
 # just run the load model line if you already have a trained model saved
 
-input1 = Input(shape=(640,480,1))
+input1 = Input(shape=(640, 480, 1))
 
-#https://stats.stackexchange.com/questions/181/how-to-choose-the-number-of-hidden-layers-and-nodes-in-a-feedforward-neural-netw
-#we should probably read through this to get a better idea of how many layers to use
+# https://stats.stackexchange.com/questions/181/how-to-choose-the-number-of-hidden-layers-and-nodes-in-a-feedforward-neural-netw
+# we should probably read through this to get a better idea of how many layers to use
 
 
-conv1 = Convolution2D(100, 8, activation='relu', input_shape=(1, 640,480,1), data_format="channels_last")(input1)
-conv1 = Convolution2D(20, 4, activation='relu')(conv1)
-#conv1 = Convolution2D(50, 2, activation='relu')(conv1)
-#conv1 = MaxPool2D(pool_size=(2))(conv1) #same with maxpooling, might want 2d if possible
-#conv1 = Dropout(0.25)(conv1) #sets a random set of activations to 0. as explained below, relu activation can lead to dead neurons if too many are set to 0. using dropout with rely might be a bad idea. however, this can help with overfitting. but overfitting is a problem we may or may not run into (im leaning on the side of 'not'. idk how overfitting works with reinforcement learning, since i cant visualize a graph)
+conv1 = Convolution2D(200, 8, activation='relu', input_shape=(1, 640, 480, 1), data_format="channels_last")(input1)
+conv1 = Convolution2D(80, 2, activation='relu')(conv1)
+conv1 = MaxPool2D(pool_size=(2))(conv1)  # same with maxpooling, might want 2d if possible
 conv1 = Flatten()(conv1)
 
-#if we want LSTM, we would need to define it after conv1, example:
-#lstm = Sequential()
-#lstm.add(TimeDistributed(conv1, input_shape=()))
-#lstm.add(LSTM(activation='relu', return_sequences=False/True, return_state=False/True, etc)) #theres a lot of arguments for the lstm layer, can look at website for more info
-#lstm.add(Dense())
-#then merge lstm and model2 below
-
-#hidden layer 1
+# hidden layer 1
 input2 = Input(shape=(4,))
 model2 = Dense(8, init='lecun_uniform')(input2)
-model2 = Activation('tanh')(model2) #pretty much just a scaled sigmoid. would guess its used for probability type things as well?
+model2 = Activation('tanh')(model2)
 
+merged = Concatenate()([conv1, model2])
+output = Dense(10)(merged)
+output = Dense(4, activation='softmax')(output)  # softmax usually used in rnn, for probablistic functions
+# softmax probably might still work in this case. it gives values between 0 and 1, but divides each output so that
+# all the class's probabilities add up to 1. so its the probability that any class is likely to be the case. this
+# could be good in figuring out which direction to go
 
-merged = Concatenate()([conv1,model2])
-output = Dense(20)(merged)
-output = Dense(4, activation='softmax')(output) #softmax usually used in rnn, for probablistic functions
-#softmax probably might still work in this case. it gives values between 0 and 1, but divides each output so that all the class's probabilities add up to 1. so its the probability that any class is likely to be the case. this could be good in figuring out which direction to go
-
-#model = Sequential()
-model = Model(input=[input1,input2],output=output)
+# model = Sequential()
+model = Model(input=[input1, input2], output=output)
 
 model.compile(loss='mse', optimizer='adam', metrics=['mae'])
 
 epochs = 3000
 gamma = 0.975
-epsilon = 0.3
+epsilon = 0.9
 batchSize = 5
 buffer = 10
 replay = []
 
 env = gym.make('eyerobot-gym-v0')
-#stores tuple state, action, reward, new state
+# stores tuple state, action, reward, new state
 h = 0
 for i in range(epochs):
 
@@ -87,24 +82,32 @@ for i in range(epochs):
     observation_input = temp[0]
     depth_input = temp[1]
     done = False
+
+    r = raw_input("Press enter to start next episode (or type q to safely quit): ")
+    if r == "q":
+        break
+
     # while game still in progress
     while not done:
         blockPrint()
         i2 = np.array(observation_input).reshape(1, 4)
         i1 = np.reshape(depth_input, (1, 640, 480, 1))
+
+        state = [i1, i2]  # The current state is the two inputs combined
+
         # run q on state s to get all values for each action
-        qval = model.predict([i1, i2], batch_size=1)
+        qval = model.predict(state, batch_size=1)
 
         print("Action: " + str(qval))
 
-        if random.random() < epsilon:  #choose random action
+        if random.random() < epsilon:  # choose random action
             action = np.random.randint(0, 4)
-        else:  #choose best action
+        else:  # choose best action
             action = (np.argmax(qval))
-        
-        #take action, take new state
+
+        # take action, take new state
         temp, reward, done, data = env.step(action)
-        new_state = temp[0]
+        new_observation = temp[0]
         new_depth = temp[1]
 
         new_depth = np.reshape(new_depth, (1, 640, 480, 1))
@@ -112,55 +115,35 @@ for i in range(epochs):
         enablePrint()
         print("reward: " + str(reward))
 
-        new_state = np.array(new_state).reshape(1,4)
+        new_observation = np.array(new_observation).reshape(1, 4)
 
-        #observe reward
-        #reward = getReward(new_state)
+        new_state = [new_depth, new_observation]  # The new state is the two inputs combined
 
-        #experience replay
-        if (len(replay) < buffer):  #if buffer not filled
-            replay.append((i2, i1, action, reward, new_state, new_depth))
-        else:  #overwrite old vals
-            if (h < (buffer - 1)):
-                h += 1
-            else:
-                h = 0
-            replay[h] = (i2, i1, action, reward, new_state, new_depth)
+        # Get max_Q(S',a)
+        newQ = model.predict(new_state, batch_size=1)
+        maxQ = np.max(newQ)
+        y = np.zeros((1, 4))
+        y[:] = qval[:]
 
-            #sample experience replay
-            batch = random.sample(replay, batchSize)
-            x_train = []  #holds each state s
-            x2_train = []
-            y_train = []  #class updates
-            for mem in batch: #get max of Q(new_state, a)
-                old_state, old_depth, action, reward, next_state, next_depth = mem
-                old_qval = model.predict([old_depth, old_state], batch_size=1)
-                newQ = model.predict([next_depth, next_state], batch_size=1)
-                maxQ = np.max(newQ)
-                y = np.zeros((1, 4))
-                y[:] = old_qval[:]
-                if reward > 1:  #nonterminal state
-                    update = (reward + (gamma * maxQ))
-                else:  #terminal state
-                    update = reward
-                y[0][action] = update
-                x_train.append(old_state)
-                x2_train.append(old_depth)
-                y_train.append(y.reshape(4,))
+        if reward == -1:  # non-terminal state
+            update = (reward + (gamma * maxQ))
+        else:  # terminal state
+            update = reward
 
-            x_train = np.array(x_train).reshape(batchSize,4)
-            x2_train = np.array(x2_train).reshape(batchSize, 640, 480, 1)
-            y_train = np.array(y_train)
-            print("Test #: %s" % (i,))
-            model.fit([x2_train, x_train], y_train, batch_size=batchSize, epochs=1, verbose=1)
+        y[0][action] = update  # target output
+        print("Game #: %s" % (i,))
+        model.fit(state, y, batch_size=1, nb_epoch=1, verbose=1)
 
-        observation_input = new_state
-        depth_input = new_depth
-    
-    #this was commented out, but dont we need it?
-    if epsilon > 0.1:  #slowly decrease epsilon
+        depth_input = new_state[0]
+        observation_input = new_state[1]
+
+    # this was commented out, but dont we need it?
+    if epsilon > 0.1:  # slowly decrease epsilon
         epsilon -= (1.0 / epochs)
         print("epsilon: " + str(epsilon))
 
-#save model to file
+print("Exiting..")
+# save model to file
 model.save('room1.h5')
+env.close()
+print("Goodbye")

@@ -1,6 +1,7 @@
 import atexit
 import freenect
 import socket
+import select
 import sys
 import time
 from threading import Thread
@@ -114,7 +115,7 @@ class EyeRobotEnv(gym.Env):
         self.action_space = spaces.Discrete(4)
         self.observation_space = spaces.Discrete(4)
 
-        self.observation = [0,0,0,0]
+        self.observation = [0, 0, 0, 0]
 
         self.packet_map[0x06] = self.on_score
 
@@ -184,6 +185,9 @@ class EyeRobotEnv(gym.Env):
             freenect.runloop(depth=self.send_depth,
                              video=self.send_rgb,
                              body=self.body)
+        else:
+            self.current_depth_frame = np.empty((640, 480))
+            self.current_rgb_frame = np.empty((640, 480))
 
     def connect(self):
         self.socket.connect(self.server_address)
@@ -201,7 +205,7 @@ class EyeRobotEnv(gym.Env):
     def disconnect(self):
         self.connected = False
 
-        self.socket.shutdown(socket.SHUT_WR)
+        self.socket.close()
 
     def step(self, action):
         assert self.action_space.contains(action)
@@ -242,9 +246,10 @@ class EyeRobotEnv(gym.Env):
             print("Waiting for score..")
             time.sleep(SCORE_DELAY)
 
-        while prev_timestamp == self.depth_frame_timestamp:
-            print("Waiting for new frame..")
-            time.sleep(SCORE_DELAY)
+        if ENABLE_KINECT:
+            while prev_timestamp == self.depth_frame_timestamp:
+                print("Waiting for new frame..")
+                time.sleep(SCORE_DELAY)
 
         print("Calculating observation and reward")
         difference = prev_distance - self.new_distance
@@ -255,11 +260,11 @@ class EyeRobotEnv(gym.Env):
         if self.new_distance == -1:
             done = True
             self.observation = [0, self.new_distance, self.last_action, self.step_count]
-            self.score = -1
+            self.score = -2
         # If the distance is -2, then it won!
         elif self.new_distance == -2:
             done = True
-            self.score *= 2
+            self.score = 1
             self.observation = [0, self.new_distance, self.last_action, self.step_count]
         # If the difference between the old distance and the new distance
         # is less than the negative of the tolerance
@@ -273,21 +278,22 @@ class EyeRobotEnv(gym.Env):
         # difference < -1 = TRUE
         elif difference < -DISTANCE_TOLERANCE:
             self.observation = [-1, self.new_distance, self.last_action, self.step_count]
-            self.score -= 2
+            self.score = -1
         # If the difference between the old distance and the new distance
         # is greater than the tolerance
         # then the robot has moved closer
         elif difference > DISTANCE_TOLERANCE:
             self.observation = [1, self.new_distance, self.last_action, self.step_count]
-            self.score += 2
+            self.score = 1
         # Otherwise the difference is inside the tolerance and therefore
         # hasn't made any progress
         else:
             self.observation = [2, self.new_distance, self.last_action, self.step_count]
+            self.score = 0
 
         if GOAL_TOLERANCE >= self.new_distance > 0:
             done = True
-            self.score *= 2
+            self.score = 1
             self.observation = [0, self.new_distance, self.last_action, self.step_count]
 
         self.last_action = action
@@ -297,7 +303,8 @@ class EyeRobotEnv(gym.Env):
         if self.step_count >= MAX_STEPS:
             done = True
 
-        return [self.observation, self.current_depth_frame], self.score, done, {"distance": self.new_distance, "steps": self.step_count}
+        return [self.observation, self.current_depth_frame], self.score, done, {"distance": self.new_distance,
+                                                                                "steps": self.step_count}
 
     def reset(self):
         self.step_count = 0
@@ -319,18 +326,41 @@ class EyeRobotEnv(gym.Env):
     def safe_read(self, count):
         arr = bytearray()
 
-        while len(arr) < count and self.connected:
-            tmp, _ = self.socket.recvfrom(count)
-            tmp2 = bytearray(tmp)
-            arr.extend(tmp2)
+        # dataInSocket, _, _ = select.select([self.socket], [], [])
+        # print(dataInSocket)
+
+        try:
+            r, _, _ = select.select([self.socket], [], [])
+
+            while len(arr) < count and self.connected:
+                tmp, _ = self.socket.recvfrom(count)
+                tmp2 = bytearray(tmp)
+                arr.extend(tmp2)
+        except:
+            if self.connected:
+                print("Failed to read from socket!")
+            else:
+                print("Socket shutdown")
 
         return arr
+
+    def close(self):
+        self.disconnect()
+        if ENABLE_KINECT:
+            freenect.shutdown()
+        self.current_depth_frame = None
+        self.current_rgb_frame = None
+        self.kinect_thread.join(1000)
+        self.read_thread.join(1000)
 
     def start_reading(self):
         while self.connected:
             print "Waiting for command.."
 
             header_arr = self.safe_read(1)
+
+            if len(header_arr) == 0:
+                continue
 
             op_code = header_arr[0]
 
