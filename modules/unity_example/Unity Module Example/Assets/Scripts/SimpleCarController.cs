@@ -110,10 +110,10 @@ public class SimpleCarController : MonoBehaviour
 			controllerValue3 = maxSpeed;
 			controllerValue4 = maxSpeed;
 			
-			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+			//SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
 	
-			StartCoroutine(DelayUnityMovement(unity_delay));
-			if(unity_toMove)
+			//StartCoroutine(DelayUnityMovement(unity_delay));
+			//if(unity_toMove)
 				this.transform.localPosition += transform.forward * moveSpeed * Time.deltaTime;
 			
 		}else if (Input.GetKey(KeyCode.S))
@@ -123,10 +123,10 @@ public class SimpleCarController : MonoBehaviour
 			controllerValue3 = -maxSpeed;
 			controllerValue4 = -maxSpeed;
 			
-			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+			//SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
 	
-			StartCoroutine(DelayUnityMovement(unity_delay));
-			if(unity_toMove)
+			//StartCoroutine(DelayUnityMovement(unity_delay));
+			//if(unity_toMove)
 				this.transform.localPosition -= transform.forward * moveSpeed * Time.deltaTime;
 		}
 		else if (Input.GetKey(KeyCode.A))
@@ -136,10 +136,10 @@ public class SimpleCarController : MonoBehaviour
 			controllerValue3 =-maxSpeed;
 			controllerValue4 =maxSpeed;
 			
-			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+			//SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
 	
-			StartCoroutine(DelayUnityMovement(unity_delay));
-			if(unity_toMove)
+			//StartCoroutine(DelayUnityMovement(unity_delay));
+			//if(unity_toMove)
 				this.transform.Rotate (-Vector3.up * rotateSpeed * Time.deltaTime);
 		}
 		else if (Input.GetKey(KeyCode.D))
@@ -149,10 +149,10 @@ public class SimpleCarController : MonoBehaviour
 			controllerValue3 =maxSpeed;
 			controllerValue4 =-maxSpeed;
 			
-			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+			//SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
 	
-			StartCoroutine(DelayUnityMovement(unity_delay));
-			if(unity_toMove)
+			//StartCoroutine(DelayUnityMovement(unity_delay));
+			//if(unity_toMove)
 				this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
 		}
 		else
@@ -162,7 +162,7 @@ public class SimpleCarController : MonoBehaviour
 			controllerValue3 = 0f;
 			controllerValue4 = 0f;
 			
-			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+			//SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
 	
 		}
 		
@@ -175,11 +175,11 @@ public class SimpleCarController : MonoBehaviour
 			controllerValue3 = maxSpeed;
 			controllerValue4 = maxSpeed;
 			
-			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+			//SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
 	
-			StartCoroutine(DelayUnityMovement(unity_delay));
-			if(unity_toMove)
-				this.transform.localPosition += transform.forward * moveSpeed * Time.deltaTime;
+			//StartCoroutine(DelayUnityMovement(unity_delay));
+			//if(unity_toMove)
+			this.transform.localPosition += transform.forward * moveSpeed * Time.deltaTime;
 			
 		}else if (NetworkInput.GetKey(KeyCode.S))
 		{
@@ -188,10 +188,10 @@ public class SimpleCarController : MonoBehaviour
 			controllerValue3 = -maxSpeed;
 			controllerValue4 = -maxSpeed;
 			
-			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+			//SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
 			
-			StartCoroutine(DelayUnityMovement(unity_delay));
-			if(unity_toMove)
+			//StartCoroutine(DelayUnityMovement(unity_delay));
+			//if(unity_toMove)
 				this.transform.localPosition -= transform.forward * moveSpeed * Time.deltaTime;
 		}
 		else if (NetworkInput.GetKey(KeyCode.A))
@@ -201,10 +201,10 @@ public class SimpleCarController : MonoBehaviour
 			controllerValue3 =-maxSpeed;
 			controllerValue4 =maxSpeed;
 			
-			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+			//SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
 			
-			StartCoroutine(DelayUnityMovement(unity_delay));
-			if(unity_toMove)
+			//StartCoroutine(DelayUnityMovement(unity_delay));
+			//if(unity_toMove)
 				this.transform.Rotate (-Vector3.up * rotateSpeed * Time.deltaTime);
 		}
 		else if (NetworkInput.GetKey(KeyCode.D))
@@ -214,10 +214,10 @@ public class SimpleCarController : MonoBehaviour
 			controllerValue3 =maxSpeed;
 			controllerValue4 =-maxSpeed;
 			
-			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
+			//SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
 			
-			StartCoroutine(DelayUnityMovement(unity_delay));
-			if(unity_toMove)
+			//StartCoroutine(DelayUnityMovement(unity_delay));
+			//if(unity_toMove)
 				this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
 		}
 		else
@@ -227,9 +227,9 @@ public class SimpleCarController : MonoBehaviour
 			controllerValue3 = 0f;
 			controllerValue4 = 0f;
 			
-			SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
-	
 		}
+		
+		SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
 
 	}
 
@@ -237,6 +237,7 @@ public class SimpleCarController : MonoBehaviour
 	{
 		if (ModuleClient.Instance != null)
 		{
+			Debug.Log("Do " + val1 + " " + val2 + " " + val3  + " " + val4);
 			ModuleClient.Instance.SendRobotCommand(val1, val2, val3, val4);
 		}
 	}

@@ -1897,7 +1897,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1487794794199018, guid: 25762de022b0c4d16aa98825692269f1, type: 2}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 25762de022b0c4d16aa98825692269f1, type: 2}
@@ -2199,7 +2199,7 @@ Transform:
   m_GameObject: {fileID: 921854983}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 20, y: 1, z: 20}
+  m_LocalScale: {x: 4, y: 1, z: 30}
   m_Children: []
   m_Father: {fileID: 2097041276}
   m_RootOrder: 1
@@ -2269,8 +2269,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   distanceToDestination: 0
-  X: 20
-  Y: 20
+  X: 4
+  Y: 30
   DestinationPrefab: {fileID: 1094842184254642, guid: b90fc0439305940feba277471c64c161,
     type: 2}
   currentDestination: {fileID: 0}
