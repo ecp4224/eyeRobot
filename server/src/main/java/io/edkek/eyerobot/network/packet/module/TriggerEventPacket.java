@@ -27,6 +27,8 @@ public class TriggerEventPacket extends Packet<EyeServer, ModuleClient> {
 
         String eventData = consume(eventDataLength).asString();
 
+        //client.getServer().getLogger().info("Forwarding event " + eventId + " from " + moduleOwner + " (event length: " + eventDataLength + ") ");
+
         List<WorldModule> modulesToSend;
         if (shouldFilter) {
             modulesToSend = new ArrayList<>(5);
@@ -45,6 +47,8 @@ public class TriggerEventPacket extends Packet<EyeServer, ModuleClient> {
             }
         } else {
             modulesToSend = world.getAllModules();
+
+            modulesToSend.remove(client.getModule());
         }
 
         EventPacket packet = new EventPacket();

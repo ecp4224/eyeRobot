@@ -221,12 +221,14 @@ class EyeRobotEnv(gym.Env):
             key = D_KEY
 
         first_step = self.new_distance == 0
+        if first_step:
+            self.first_distance = self.new_distance
 
         cur_score = self.distance_count
         prev_distance = self.new_distance
         prev_timestamp = self.depth_frame_timestamp
 
-        print("Sending key press")
+        print("Sending key press " + str(key) + " : " + str(action))
         # Send Key Press to Unity
         self.send_key_event(key, 1)
 
@@ -253,19 +255,19 @@ class EyeRobotEnv(gym.Env):
         print("Calculating observation and reward")
         difference = prev_distance - self.new_distance
 
-        reward = 0
+        reward = (self.first_distance - self.new_distance)
 
         done = False
 
         # If the distance is -1, then it fell off the playground
         if self.new_distance == -1:
             done = True
-            reward = -1
+            reward = 0
             self.observation = [0, self.new_distance, self.last_action, self.step_count]
         # If the distance is -2, then it won!
         elif self.new_distance == -2:
             done = True
-            reward = 1
+            reward = 100
             self.observation = [0, self.new_distance, self.last_action, self.step_count]
         # If the difference between the old distance and the new distance
         # is less than the negative of the tolerance
@@ -283,7 +285,6 @@ class EyeRobotEnv(gym.Env):
         # is greater than the tolerance
         # then the robot has moved closer
         elif difference > DISTANCE_TOLERANCE:
-            reward = 0.5
             self.observation = [1, self.new_distance, self.last_action, self.step_count]
         # Otherwise the difference is inside the tolerance and therefore
         # hasn't made any progress
@@ -292,7 +293,7 @@ class EyeRobotEnv(gym.Env):
 
         if GOAL_TOLERANCE >= self.new_distance > 0:
             done = True
-            reward = 1
+            reward = 100
 
             self.observation = [0, self.new_distance, self.last_action, self.step_count]
 
@@ -312,7 +313,6 @@ class EyeRobotEnv(gym.Env):
         self.distance_count = 0
         self.new_distance = 0
         self.first_distance = 0
-        self.score = 0
         self.episode += 1
 
         self.send_game_reset()

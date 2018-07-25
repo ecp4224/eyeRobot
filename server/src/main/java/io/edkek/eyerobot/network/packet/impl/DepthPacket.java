@@ -7,7 +7,7 @@ import io.edkek.eyerobot.network.packet.Packet;
 
 import java.io.IOException;
 
-public class KinectInfoPacket extends Packet<EyeServer, EyeClient> {
+public class DepthPacket extends Packet<EyeServer, EyeClient> {
 
     @Override
     public void onHandlePacket(EyeClient client) throws IOException {
@@ -22,15 +22,13 @@ public class KinectInfoPacket extends Packet<EyeServer, EyeClient> {
                 robotClient.setLastKinectPacketNumber(packetNumber);
             }
 
-            int rgbLength = consume(4).asInt();
             int depthLength = consume(4).asInt();
             double accx = consume(8).asDouble();
             double accy = consume(8).asDouble();
             double accz = consume(8).asDouble();
-            byte[] rgbData = consume(rgbLength).raw();
             byte[] depthData = consume(depthLength).raw();
 
-            robotClient.getRobot().update(accx, accy, accz, rgbData, depthData);
+            robotClient.getRobot().update(accx, accy, accz, new byte[0], depthData);
         }
     }
 }

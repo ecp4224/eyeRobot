@@ -23,8 +23,10 @@ public class ModuleClient extends EyeClient {
         System.arraycopy(rawData, 1, data, 0, data.length);
 
         Packet<EyeServer, ModuleClient> packet = PacketFactory.getModulePacket(opCode);
-        if (packet == null)
-            throw new IllegalAccessError("Invalid opcode sent!");
+        if (packet == null) {
+            System.err.println("Invalid opcode sent!\nIgnoring..");
+            return;
+        }
 
         packet.handlePacket(this, data);
         packet.endTCP();
