@@ -30,7 +30,7 @@ public class KinectInfoPacket extends Packet<EyeServer, EyeClient> {
             byte[] rgbData = consume(rgbLength).raw();
             byte[] depthData = consume(depthLength).raw();
 
-            robotClient.getRobot().update(accx, accy, accz, rgbData, depthData);
+            //robotClient.getRobot().update(accx, accy, accz, rgbData, depthData);
         }
     }
 }

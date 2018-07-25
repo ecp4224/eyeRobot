@@ -1,7 +1,42 @@
 from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
 from robot_client import RobotClient
-
+from threespace import threespace_api as ts_api
+import sys
+import glob
+import serial
 import atexit
+
+
+def serial_ports():
+    """ Lists serial port names
+
+        :raises EnvironmentError:
+            On unsupported or unknown platforms
+        :returns:
+            A list of the serial ports available on the system
+    """
+    if sys.platform.startswith('win'):
+        ports = ['COM%s' % (i + 1) for i in range(256)]
+    elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+        # this excludes your current terminal "/dev/tty"
+        ports = glob.glob('/dev/tty[A-Za-z]*')
+    elif sys.platform.startswith('darwin'):
+        ports = glob.glob('/dev/tty.*')
+    else:
+        raise EnvironmentError('Unsupported platform')
+
+    result = []
+    for port in ports:
+        try:
+            s = serial.Serial(port)
+            s.close()
+            result.append(port)
+        except (OSError, serial.SerialException):
+            pass
+    return result
+
+
+print(serial_ports())
 
 print "Attach to motors"
 
@@ -25,9 +60,11 @@ frontr = mh.getMotor(4)
 rearl = mh.getMotor(1)
 rearr = mh.getMotor(2)
 
+device = None
 
 def server_command(data):
     print "Got motor command from server"
+    global device
 
     frontl.run(data.getMotor1Direction())
     frontr.run(data.getMotor2Direction())
@@ -44,6 +81,10 @@ def server_command(data):
     motor3 = data.getMotor3()
     motor4 = data.getMotor4()
 
+    quat = device.getUntaredOrientationAsQuaternion()
+    acc = device.getCorrectedLinearAccelerationInGlobalSpace()
+    compass = device.getNormalizedCompassVector()
+
     if data.getMotor1Direction() == Adafruit_MotorHAT.BACKWARD:
         motor1 = -motor1
 
@@ -57,9 +98,19 @@ def server_command(data):
         motor4 = -motor4
 
     # Echo back the command, along with some test variables
-    client.send_info_packet(motor1, motor2, motor3, motor4, 0.4, 0.7, bytearray([0] * 10), bytearray([0] * 20))
+    client.send_info_packet(motor1, motor2, motor3, motor4, acc, quat, compass)
 
 
+com_port = "/dev/tty.usbmodem1411"
+
+print "Attaching to COM port " + com_port
+
+try:
+    device = ts_api.TSUSBSensor(com_port=com_port)
+except:
+    print("No device on {0}".format(com_port))
+else:
+    print(device)
 
 print "Prepare client"
 

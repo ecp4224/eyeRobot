@@ -50,29 +50,36 @@ class RobotClient:
         self.socket.shutdown(socket.SHUT_WR)
 
     def send_session_packet(self):
-        arr = bytearray([0x00, 0, len(NAME), len(PEER_IP)])
+        arr = bytearray([0x00, 0, len(NAME)])
         arr.extend(NAME)
-        arr.extend(PEER_IP)
 
         self.socket.sendto(arr, self.server_address)
 
-    def send_info_packet(self, motor1, motor2, motor3, motor4, acc, gyro, rgbArray, depthArray):
-        total_size = 40 + len(rgbArray) + len(depthArray)
+    def send_info_packet(self, motor1, motor2, motor3, motor4, acc, gyro, compass):
+        total_size = 64
+
+        accX, accY, accZ = acc
+        gyroX, gyroY, gyroZ, gyroW = gyro
+        compassX, compassY, compassZ = compass
 
         array = bytearray([0] * total_size)
         buf = ByteBuffer(array, 0, total_size)
 
         buf.put_SLInt64(self.packet_number)
-        buf.put_SLInt32(len(rgbArray))
-        buf.put_SLInt32(len(depthArray))
-        buf.put_LFloat32(acc)
-        buf.put_LFloat32(gyro)
         buf.put_SLInt32(motor1)
         buf.put_SLInt32(motor2)
         buf.put_SLInt32(motor3)
         buf.put_SLInt32(motor4)
-        buf.put_bytes(rgbArray, 0, len(rgbArray))
-        buf.put_bytes(depthArray, 0, len(depthArray))
+        buf.put_LFloat32(accX)
+        buf.put_LFloat32(accY)
+        buf.put_LFloat32(accZ)
+        buf.put_LFloat32(compassX)
+        buf.put_LFloat32(compassY)
+        buf.put_LFloat32(compassZ)
+        buf.put_LFloat32(gyroX)
+        buf.put_LFloat32(gyroY)
+        buf.put_LFloat32(gyroZ)
+        buf.put_LFloat32(gyroW)
 
         to_send = bytearray([0] * (total_size + 1))
         to_send[0] = 0x02

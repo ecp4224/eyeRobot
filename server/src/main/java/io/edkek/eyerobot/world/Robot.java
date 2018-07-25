@@ -3,6 +3,8 @@ package io.edkek.eyerobot.world;
 import io.edkek.eyerobot.network.impl.RobotClient;
 import io.edkek.eyerobot.network.packet.robot.UpdateMotorPacket;
 import io.edkek.eyerobot.utils.PRunnable;
+import io.edkek.eyerobot.utils.Quaternion;
+import io.edkek.eyerobot.utils.Vector3;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,15 +16,13 @@ public class Robot {
     private transient ArrayList<PRunnable<Robot>> callbacks = new ArrayList<>();
     private transient World world;
 
-    private double accelerationx;
-    private double accelerationy;
-    private double accelerationz;
+    private Vector3 acceleration = new Vector3();
+    private Vector3 compass = new Vector3();
+    private Quaternion orientation = new Quaternion();
     private int motor1;
     private int motor2;
     private int motor3;
     private int motor4;
-    private byte[] rgbData;
-    private byte[] depthData;
 
     //Store other variables in here for the robot
     public Robot(String name, RobotClient client) {
@@ -38,43 +38,31 @@ public class Robot {
         return client;
     }
 
-    public void update(int motor1, int motor2, int motor3, int motor4) {
+    public void update(int motor1, int motor2, int motor3, int motor4,
+                       float accX, float accY, float accZ,
+                       float compassX, float compassY, float compassZ,
+                       float orientationX, float orientationY, float orientationZ, float orientationW) {
         this.motor1 = motor1;
         this.motor2 = motor2;
         this.motor3 = motor3;
         this.motor4 = motor4;
 
-        for (PRunnable<Robot> callback : callbacks) {
-            callback.run(this);
-        }
-    }
+        this.acceleration.x = accX;
+        this.acceleration.y = accY;
+        this.acceleration.z = accZ;
 
-    public void update(double accx, double accy, double accz, byte[] rgbData, byte[] depthData) {
-        this.accelerationx = accx;
-        this.accelerationy = accy;
-        this.accelerationz = accz;
+        this.compass.x = compassX;
+        this.compass.y = compassY;
+        this.compass.z = compassZ;
 
-        if (rgbData.length > 0)
-            this.rgbData = rgbData;
-
-        if (depthData.length > 0)
-            this.depthData = depthData;
+        this.orientation.x = orientationX;
+        this.orientation.y = orientationY;
+        this.orientation.z = orientationZ;
+        this.orientation.w = orientationW;
 
         for (PRunnable<Robot> callback : callbacks) {
             callback.run(this);
         }
-    }
-
-    public double getAccelerationx() {
-        return accelerationx;
-    }
-
-    public double getAccelerationy() {
-        return accelerationy;
-    }
-
-    public double getAccelerationz() {
-        return accelerationz;
     }
 
     public int getMotor1() {
@@ -93,12 +81,16 @@ public class Robot {
         return motor4;
     }
 
-    public byte[] getRgbData() {
-        return rgbData;
+    public Vector3 getAcceleration() {
+        return acceleration;
     }
 
-    public byte[] getDepthData() {
-        return depthData;
+    public Vector3 getCompass() {
+        return compass;
+    }
+
+    public Quaternion getOrientation() {
+        return orientation;
     }
 
     public void addSensorListener(PRunnable<Robot> callback) {

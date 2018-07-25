@@ -28,7 +28,24 @@ public class SensorInformationPacket extends Packet<EyeServer, EyeClient> {
             int motor3 = consume(4).asInt();
             int motor4 = consume(4).asInt();
 
-            robotClient.getRobot().update(motor1, motor2, motor3, motor4);
+            float accX = consume(4).asFloat();
+            float accY = consume(4).asFloat();
+            float accZ = consume(4).asFloat();
+
+            float compassX = consume(4).asFloat();
+            float compassY = consume(4).asFloat();
+            float compassZ = consume(4).asFloat();
+
+            float orientationX = consume(4).asFloat();
+            float orientationY = consume(4).asFloat();
+            float orientationZ = consume(4).asFloat();
+            float orientationW = consume(4).asFloat();
+
+
+            robotClient.getRobot().update(motor1, motor2, motor3, motor4,
+                    accX, accY, accZ,
+                    compassX, compassY, compassZ,
+                    orientationX, orientationY, orientationZ, orientationW);
         }
     }
 }

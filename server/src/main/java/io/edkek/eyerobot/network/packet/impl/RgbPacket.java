@@ -28,7 +28,7 @@ public class RgbPacket extends Packet<EyeServer, EyeClient> {
             double accz = consume(8).asDouble();
             byte[] rgbData = consume(rgbLength).raw();
 
-            robotClient.getRobot().update(accx, accy, accz, rgbData, new byte[0]);
+            //robotClient.getRobot().update(accx, accy, accz, rgbData, new byte[0]);
         }
     }
 }

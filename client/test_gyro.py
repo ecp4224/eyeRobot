@@ -3,6 +3,7 @@ import sys
 import glob
 import serial
 import time
+from robot_client import RobotClient
 
 
 def serial_ports():
@@ -34,11 +35,18 @@ def serial_ports():
     return result
 
 
-def round_all(v, n):
-    return tuple(map(lambda x: isinstance(x, float) and round(x, n) or x, v))
-
-
 print(serial_ports())
+
+
+def callback(motor1, motor2, motor3, motor4):
+    print(motor1)
+    print(motor2)
+    print(motor3)
+    print(motor4)
+
+
+robot = RobotClient(on_command=callback)
+robot.connect()
 
 ## If the COM port is already known and the device type is known for the 3-Space
 ## Sensor device, we can just create the appropriate instance without doing a
@@ -58,16 +66,11 @@ else:
         ## Now we can start getting information from the device.
         ## The class instances have all of the functionality that corresponds to the
         ## 3-Space Sensor device type it is representing.
-        for i in range(1000):
-            quat = round_all(device.getUntaredOrientationAsQuaternion(), 3)
-            acc = round_all(device.getNormalizedAccelerometerVector(), 3)
-            compass = round_all(device.getNormalizedCompassVector(), 3)
+        while True:
+            quat = device.getUntaredOrientationAsQuaternion()
+            acc = device.getCorrectedLinearAccelerationInGlobalSpace()
+            compass = device.getNormalizedCompassVector()
 
-            print("Orientation: " + str(quat) + "\nAcceleration: " + str(acc) + "\nCompass: " + str(compass))
-            print
-            print
-            print
-
-            time.sleep(1)
+            robot.send_info_packet(0, 0, 0, 0, acc, quat, compass)
 
         device.close()

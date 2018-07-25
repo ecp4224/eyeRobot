@@ -28,7 +28,7 @@ public class DepthPacket extends Packet<EyeServer, EyeClient> {
             double accz = consume(8).asDouble();
             byte[] depthData = consume(depthLength).raw();
 
-            robotClient.getRobot().update(accx, accy, accz, new byte[0], depthData);
+           // robotClient.getRobot().update(accx, accy, accz, new byte[0], depthData);
         }
     }
 }

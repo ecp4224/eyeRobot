@@ -85,7 +85,10 @@ public class ModuleClient : AsyncMonoBehavior, IClient
 	{
 		while (_actions.Count > 0)
 		{
-			_actions.Dequeue()();
+			var a = _actions.Dequeue();
+			if (a == null)
+				continue;
+			a();
 		}
 	}
 
