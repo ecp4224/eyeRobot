@@ -11,6 +11,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.Events;
 using Newtonsoft.Json;
+using UnityEngine.Networking;
 
 public class GameServer : AsyncMonoBehavior
 {
@@ -21,6 +22,8 @@ public class GameServer : AsyncMonoBehavior
 	}
 	
 	private static GameServer _instance;
+
+	private PacketFactory packets;
 
 	[HideInInspector]
 	[BindResource("Prefabs/NetworkClient")]
@@ -38,6 +41,7 @@ public class GameServer : AsyncMonoBehavior
 	private LinkedList<UnityAction<Vector3, Vector3>> _movements = new LinkedList<UnityAction<Vector3, Vector3>>();
 
 	private Func<float> scorer;
+	private GameObject scorer_owner;
 	void Awake()
 	{
 		if (_instance == null)
@@ -57,6 +61,8 @@ public class GameServer : AsyncMonoBehavior
 		listener.Start();
 
 		listener.BeginAcceptTcpClient(OnClientAccepted, listener);
+
+		packets = GetComponent<PacketFactory>();
 	}
 
 	public void RegisterGameManager(MonoBehaviour script)
@@ -77,6 +83,7 @@ public class GameServer : AsyncMonoBehavior
 				{
 					var field1 = field;
 					scorer = () => (float) field1.GetValue(script);
+					scorer_owner = script.gameObject;
 					break;
 				}
 			}
@@ -125,6 +132,7 @@ public class GameServer : AsyncMonoBehavior
 				var networkClient = newClient.GetComponent<NetworkClient>();
 
 				networkClient.client = client;
+				networkClient.packets = packets;
 			});
 		}
 		finally
@@ -181,7 +189,7 @@ public class GameServer : AsyncMonoBehavior
 				packetWriter = gameObject.AddComponent<NewScore>();
 			}
 
-			packetWriter.writePacket(client, distance);
+			packetWriter.writePacket(client, distance, scorer_owner.transform.rotation);
 		});
 	}
 }

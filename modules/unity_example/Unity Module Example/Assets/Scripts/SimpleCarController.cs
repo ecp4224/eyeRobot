@@ -19,6 +19,7 @@ public class SimpleCarController : MonoBehaviour
 	public bool force_movement = true;
 	
 	public bool isTimer;
+	private bool simulate_rotate = false;
 	private float timeForTable;
 
 	[DistanceVariable]
@@ -64,7 +65,8 @@ public class SimpleCarController : MonoBehaviour
 
 			Playground.instance.distanceToDestination = -2;
 
-		}else if (col.CompareTag("FLoor"))
+		}
+		else if (col.CompareTag("FLoor"))
 		{
 			Playground.instance.distanceToDestination = -1;
 		}
@@ -72,16 +74,10 @@ public class SimpleCarController : MonoBehaviour
 	
 	void Start()
 	{
-		ModuleClient.Instance.RequestSensorInformation("eyeRobot", OnInfoUpdate);
-	}
-
-	public static double Yaw(Vector4 quaternion){
-		double value = 2.0 * (quaternion.w * quaternion.y - quaternion.z * quaternion.x);
-		value = value > 1.0 ? 1.0 : value;
-		value = value < -1.0 ? -1.0 : value;
-
-		double pitch = Math.Asin (value);
-		return pitch * (180.0 / Math.PI);
+		simulate_rotate = ModuleClient.Instance == null;
+		
+		if (!simulate_rotate)
+			ModuleClient.Instance.RequestSensorInformation("eyeRobot", OnInfoUpdate);
 	}
 
 	void Update()
@@ -140,7 +136,7 @@ public class SimpleCarController : MonoBehaviour
 	
 			//StartCoroutine(DelayUnityMovement(unity_delay));
 			//if(unity_toMove)
-				this.transform.Rotate (-Vector3.up * rotateSpeed * Time.deltaTime);
+			if (simulate_rotate) this.transform.Rotate (-Vector3.up * rotateSpeed * Time.deltaTime);
 		}
 		else if (Input.GetKey(KeyCode.D))
 		{
@@ -153,7 +149,7 @@ public class SimpleCarController : MonoBehaviour
 	
 			//StartCoroutine(DelayUnityMovement(unity_delay));
 			//if(unity_toMove)
-				this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
+			if (simulate_rotate) this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
 		}
 		else
 		{
@@ -205,7 +201,7 @@ public class SimpleCarController : MonoBehaviour
 			
 			//StartCoroutine(DelayUnityMovement(unity_delay));
 			//if(unity_toMove)
-				this.transform.Rotate (-Vector3.up * rotateSpeed * Time.deltaTime);
+			if (simulate_rotate) this.transform.Rotate (-Vector3.up * rotateSpeed * Time.deltaTime);
 		}
 		else if (NetworkInput.GetKey(KeyCode.D))
 		{
@@ -218,7 +214,7 @@ public class SimpleCarController : MonoBehaviour
 			
 			//StartCoroutine(DelayUnityMovement(unity_delay));
 			//if(unity_toMove)
-				this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
+			if (simulate_rotate) this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
 		}
 		else
 		{
@@ -242,12 +238,27 @@ public class SimpleCarController : MonoBehaviour
 		}
 	}
 
-	private void OnInfoUpdate(SensorInformation arg0)
+	private bool got_first = false;
+	private Quaternion inital;
+	private void OnInfoUpdate(SensorInformation info)
 	{
-		motor1 = arg0.motor1;
-		motor2= arg0.motor2;
-		motor3 = arg0.motor3;
-		motor4 = arg0.motor4;
+		motor1 = info.motor1;
+		motor2= info.motor2;
+		motor3 = info.motor3;
+		motor4 = info.motor4;
+		
+		info.orientation.x = 0;
+		info.orientation.z = 0;
+		/*if (!got_first)
+		{
+			inital = info.orientation;
+			got_first = true;
+		}
+		
+		var newRotation = new Quaternion(transform.rotation.x, info.orientation.y - inital.y, transform.rotation.z, info.orientation.w);
+		*/
+		
+		gameObject.transform.rotation = info.orientation;
 
 		//reference to x accel
 

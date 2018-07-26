@@ -28,6 +28,8 @@ public class NetworkClient : AsyncMonoBehavior, IClient
         public object target;
     }
 
+    public PacketFactory packets;
+
     [HideInInspector]
     public TcpClient client;
 
@@ -63,7 +65,7 @@ public class NetworkClient : AsyncMonoBehavior, IClient
                     break;
                 }
 
-                Packet p = PacketFactory.Instance[opcode[0]];
+                Packet p = packets[opcode[0]];
                 if (p == null)
                 {
                     Debug.Log("Invalid packet: " + opcode[0]);

@@ -55,9 +55,12 @@ public class Robot {
         this.compass.y = compassY;
         this.compass.z = compassZ;
 
-        this.orientation.x = orientationX;
+        this.orientation.x = orientationZ;
+
+        //Flip for correct values in unity
         this.orientation.y = orientationY;
-        this.orientation.z = orientationZ;
+        this.orientation.z = orientationX;
+
         this.orientation.w = orientationW;
 
         for (PRunnable<Robot> callback : callbacks) {

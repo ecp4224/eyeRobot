@@ -9,7 +9,9 @@ public class GyroTest : MonoBehaviour
 	}
 
 	private void OnInfoUpdate(SensorInformation info)
-	{	
+	{
+		info.orientation.x = 0;
+		info.orientation.z = 0;
 		gameObject.transform.rotation = info.orientation;
 	}
 }

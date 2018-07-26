@@ -5,10 +5,6 @@ using UnityEngine;
 
 public class PacketFactory : MonoBehaviour
 {
-	public static PacketFactory Instance
-	{
-		get { return _instance; }
-	}
 
 	private static PacketFactory _instance;
 
@@ -21,18 +17,7 @@ public class PacketFactory : MonoBehaviour
 	}
 
 	void Awake()
-	{
-		if (_instance == null)
-		{
-			_instance = this;
-			DontDestroyOnLoad(gameObject);
-		}
-		else
-		{
-			Destroy(gameObject);
-			return;
-		}
-		
+	{	
 		foreach (var packet in Packets)
 		{
 			cache.Add(packet.opcode, packet);

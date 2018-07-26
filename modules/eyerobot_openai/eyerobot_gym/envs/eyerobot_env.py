@@ -28,6 +28,7 @@ class EyeRobotEnv(gym.Env):
     rgb_frame_timestamp = 0
 
     last_action = 0
+    rotation = (0, 0, 0, 0)
 
     acceleration = [0, 0, 0]
     velocity = [0, 0, 0]
@@ -42,12 +43,18 @@ class EyeRobotEnv(gym.Env):
     packet_map = [None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
 
     def on_score(self, packet):
-        tmp = packet.read(4)
-        tmp_buf = ByteBuffer(tmp, 0, 4)
+        tmp = packet.read(4 * 5)
+        tmp_buf = ByteBuffer(tmp, 0, 4 * 5)
 
         distance = tmp_buf.get_LFloat32()
+        rx = tmp_buf.get_LFloat32()
+        ry = tmp_buf.get_LFloat32()
+        rz = tmp_buf.get_LFloat32()
+        rw = tmp_buf.get_LFloat32()
 
-        print("Got distance " + str(distance))
+        self.rotation = (rx, ry, rz, rw)
+
+        print("Got rotation " + str(self.rotation))
 
         self.new_distance = distance
         self.distance_count += 1
@@ -206,6 +213,11 @@ class EyeRobotEnv(gym.Env):
 
         self.socket.close()
 
+    def update_observation(self, state):
+        rx, ry, rz, rw = self.rotation
+
+        self.observation = [state, self.new_distance, self.last_action, self.step_count, rx, ry, rz, rw]
+
     def step(self, action):
         assert self.action_space.contains(action)
 
@@ -255,20 +267,20 @@ class EyeRobotEnv(gym.Env):
         print("Calculating observation and reward")
         difference = prev_distance - self.new_distance
 
-        reward = (self.first_distance - self.new_distance)
+        reward = 0
 
         done = False
 
         # If the distance is -1, then it fell off the playground
         if self.new_distance == -1:
             done = True
-            reward = 0
-            self.observation = [0, self.new_distance, self.last_action, self.step_count]
+            reward = -1
+            self.update_observation(-2)
         # If the distance is -2, then it won!
         elif self.new_distance == -2:
             done = True
             reward = 100
-            self.observation = [0, self.new_distance, self.last_action, self.step_count]
+            self.update_observation(3)
         # If the difference between the old distance and the new distance
         # is less than the negative of the tolerance
         # then the robot has moved further away
@@ -280,22 +292,25 @@ class EyeRobotEnv(gym.Env):
         # difference = -50
         # difference < -1 = TRUE
         elif difference < -DISTANCE_TOLERANCE:
-            self.observation = [-1, self.new_distance, self.last_action, self.step_count]
+            reward = -1
+            self.update_observation(-1)
         # If the difference between the old distance and the new distance
         # is greater than the tolerance
         # then the robot has moved closer
         elif difference > DISTANCE_TOLERANCE:
-            self.observation = [1, self.new_distance, self.last_action, self.step_count]
+            reward = 1
+            self.update_observation(1)
         # Otherwise the difference is inside the tolerance and therefore
         # hasn't made any progress
         else:
-            self.observation = [2, self.new_distance, self.last_action, self.step_count]
+            reward = -1
+            self.update_observation(0)
 
         if GOAL_TOLERANCE >= self.new_distance > 0:
             done = True
             reward = 100
 
-            self.observation = [0, self.new_distance, self.last_action, self.step_count]
+            self.update_observation(3)
 
         self.last_action = action
 
@@ -304,12 +319,13 @@ class EyeRobotEnv(gym.Env):
         if self.step_count >= MAX_STEPS:
             done = True
 
-        return [self.observation, self.current_depth_frame], reward, done, {"distance": self.new_distance,
-                                                                                "steps": self.step_count}
+        to_return = [self.observation, self.current_depth_frame] if ENABLE_KINECT else [self.observation]
+
+        return to_return, reward, done, {"distance": self.new_distance, "steps": self.step_count}
 
     def reset(self):
         self.step_count = 0
-        self.observation = [0, 0, 0, 0]
+        self.observation = [0, 0, 0, 0, 0, 0, 0, 0]
         self.distance_count = 0
         self.new_distance = 0
         self.first_distance = 0

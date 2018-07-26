@@ -51,7 +51,7 @@ robot.connect()
 ## If the COM port is already known and the device type is known for the 3-Space
 ## Sensor device, we can just create the appropriate instance without doing a
 ## search.
-com_port = "/dev/tty.usbmodem1411"
+com_port = "/dev/tty.usbmodem1421"
 try:
     device = ts_api.TSUSBSensor(com_port=com_port)
 except:

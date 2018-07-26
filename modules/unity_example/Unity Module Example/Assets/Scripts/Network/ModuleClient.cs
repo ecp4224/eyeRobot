@@ -50,6 +50,8 @@ public class ModuleClient : AsyncMonoBehavior, IClient
 		get { return serverSocket; }
 	}
 
+	public PacketFactory packets;
+
 	[HideInInspector]
 	public Socket serverSocket;
 
@@ -135,7 +137,7 @@ public class ModuleClient : AsyncMonoBehavior, IClient
 					break;
 				}
 
-				Packet p = PacketFactory.Instance[opcode[0]];
+				Packet p = packets[opcode[0]];
 				if (p == null)
 				{
 					Debug.Log("Invalid packet: " + opcode[0]);

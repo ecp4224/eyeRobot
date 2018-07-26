@@ -70,7 +70,7 @@ public class Playground : MonoBehaviour
 			}
 		}
 
-		Debug.Log (distanceToDestination);
+		Debug.Log ("Go: " + distanceToDestination);
 	
 	
 	

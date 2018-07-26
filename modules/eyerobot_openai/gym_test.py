@@ -2,7 +2,7 @@ import sys
 
 import gym
 
-from eyerobot_gym.config import OPEN_CL
+from eyerobot_gym.config import OPEN_CL, DEBUG
 
 if OPEN_CL:
     import plaidml.keras
@@ -37,20 +37,27 @@ robot = RobotDQN(batch_size=40)
 
 episodes = 1000
 model_history = None
+counter = 0
 for i in range(episodes):
 
     stop = False
-    while True:
-        r = raw_input("Pick an action:\n\tType r to play the next episode\n\tType g to graph the current model "
-                      "accuraccy\n\tType q to safely quit\nAction: ")
-        if r == "q":
-            stop = True
-            break
-        elif r == "g" and model_history is not None:
-            graph(model_history)
-        else:
-            stop = False
-            break
+    if counter == 0:
+        while True:
+            r = raw_input("Pick an action:\n\tType r to play the next episode\n\tType g to graph the current model "
+                          "accuraccy\n\tType s to autoplay 100 episodes\n\tType q to safely quit\nAction: ")
+            if r == "q":
+                stop = True
+                break
+            elif r == "g" and model_history is not None:
+                graph(model_history)
+            elif r == "s":
+                counter = 100
+                break
+            else:
+                stop = False
+                break
+    else:
+        counter -= 1
 
     if stop:
         break
@@ -61,9 +68,11 @@ for i in range(episodes):
     done = False
     won = False
 
+    if not DEBUG:
+        blockPrint()
+
     # while game still in progress
     while not done:
-        # blockPrint()
 
         print("What to do..")
         action = robot.step(state)
@@ -78,7 +87,10 @@ for i in range(episodes):
         state = new_state
 
         # For printing
-        won = reward == 1
+        won = reward == 100
+
+    if not DEBUG:
+        enablePrint()
 
     print("Episode completed!")
 
@@ -94,6 +106,9 @@ for i in range(episodes):
 
 print("Exiting..")
 # save model to file
-robot.save_model('hallway3.ai')
-env.close()
+
+name = raw_input("Enter name for AI: ")
+
+robot.save_model(name + ".ai")
+senv.close()
 print("Goodbye")

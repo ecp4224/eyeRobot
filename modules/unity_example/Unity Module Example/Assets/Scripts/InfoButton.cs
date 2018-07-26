@@ -11,7 +11,7 @@ public class InfoButton : MonoBehaviour
 
 	public void RequestInfo()
 	{
-		ModuleClient.Instance.RequestSensorInformation("eyeRobot", OnInfoUpdate);
+		//ModuleClient.Instance.RequestSensorInformation("eyeRobot", OnInfoUpdate);
 	}
 
 	private void OnInfoUpdate(SensorInformation newInformation)
