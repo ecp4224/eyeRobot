@@ -2,7 +2,7 @@ IP = "127.0.0.1"
 PORT = 1338
 BUFFER = 2048
 
-ENABLE_KINECT = False
+ENABLE_KINECT = True
 
 OPEN_CL = True
 

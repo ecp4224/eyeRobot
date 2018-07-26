@@ -32,8 +32,8 @@ def action_to_letter(a):
     return actions[a]
 
 
+robot = RobotDQN(load_from="hallway3.ai", batch_size=40)
 env = gym.make('eyerobot-gym-v0')
-robot = RobotDQN(batch_size=40)
 
 episodes = 1000
 model_history = None
@@ -110,5 +110,5 @@ print("Exiting..")
 name = raw_input("Enter name for AI: ")
 
 robot.save_model(name + ".ai")
-senv.close()
+env.close()
 print("Goodbye")

@@ -4,6 +4,7 @@ from collections import deque
 from keras.layers import *
 from keras.models import *
 from keras.optimizers import Adam
+import logging
 from config import ENABLE_KINECT
 import math
 
@@ -44,7 +45,6 @@ class RobotDQN():
 
         # https://stats.stackexchange.com/questions/181/how-to-choose-the-number-of-hidden-layers-and-nodes-in-a-feedforward-neural-netw
         # we should probably read through this to get a better idea of how many layers to use
-
         conv1 = Convolution2D(200, 8, input_shape=(1, 640, 480, 1), data_format="channels_last")(
             input1)
         conv1 = LeakyReLU(alpha=0.3)(conv1)
@@ -80,6 +80,38 @@ class RobotDQN():
         else:
             self.epsilon = 0.2
             self.model = load_model(load_from)
+
+            inputs = len(self.model.input_layers)
+
+            if inputs == 2 and not ENABLE_KINECT:
+                raise TypeError("Loaded AI expects kinect input, but kinect is not enabled!")
+            elif inputs == 1 and ENABLE_KINECT:
+                logging.warning("Attempting to attach kinect network to already trained virtual network")
+
+                input1 = Input(shape=(640, 480, 1))
+                input2 = Input(shape=(8,))
+
+                # https://stats.stackexchange.com/questions/181/how-to-choose-the-number-of-hidden-layers-and-nodes-in-a-feedforward-neural-netw
+                # we should probably read through this to get a better idea of how many layers to use
+
+                conv1 = Convolution2D(200, 8, input_shape=(1, 640, 480, 1), data_format="channels_last")(input1)
+                conv1 = LeakyReLU(alpha=0.3)(conv1)
+                conv1 = Convolution2D(80, 2)(conv1)
+                conv1 = LeakyReLU(alpha=0.3)(conv1)
+                conv1 = MaxPool2D(pool_size=(2))(conv1)  # same with maxpooling, might want 2d if possible
+                conv1 = Flatten()(conv1)
+
+                new_model = self.model(input2)
+
+                merged = Concatenate()([conv1, new_model])
+                output = Dense(12)(merged)
+                output = Dense(4, activation='linear')(output)
+
+                self.model = Model(input=[input2, input1], output=output)
+
+                self.model.compile(loss='mean_squared_logarithmic_error', optimizer=Adam(lr=0.0001))
+
+                
 
     def __shape_state__(self, state):
         if ENABLE_KINECT:
@@ -145,7 +177,8 @@ class RobotDQN():
             batch_state_1 = np.array(batch_state_1).reshape(bsize, 8)
             batch_state_2 = np.array(batch_state_2).reshape(bsize, 640, 480, 1)
             batch_target = np.array(batch_target)
-            history = self.model.fit([batch_state_1, batch_state_2], batch_target, batch_size=bsize, epochs=self.epochs, verbose=1)
+            history = self.model.fit([batch_state_1, batch_state_2], batch_target, batch_size=bsize, epochs=self.epochs,
+                                     verbose=1)
         else:
             batch_state_1 = np.array(batch_state_1).reshape(bsize, 8)
             batch_target = np.array(batch_target)
@@ -156,7 +189,7 @@ class RobotDQN():
         if self.epsilon > self.emin:
             self.epsilon *= self.edecay
 
-        #self.experiences.clear()
+        # self.experiences.clear()
 
         return self.all_loss
 
