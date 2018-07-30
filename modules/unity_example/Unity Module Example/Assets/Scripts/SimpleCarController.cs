@@ -14,6 +14,11 @@ using System.Collections.Generic;
 //[RequireComponent(typeof(Rigidbody))]
 public class SimpleCarController : MonoBehaviour
 {
+
+	public double score;
+	private bool toScore = true;
+	[HideInInspector]public bool toCount = true;
+	
 	private float unity_delay = .35f;
 	private bool unity_toMove = false;
 	public bool force_movement = true;
@@ -62,14 +67,32 @@ public class SimpleCarController : MonoBehaviour
 			Debug.Log ("Time of Completion: " + (endTime - Playground.instance.startTime));
 			//Playground.instance.isDest = false;
 			//Destroy (col.gameObject);
-
+			
+			//this.score += 100;
+			
+			if (toCount)
+			{
+				this.score += 100;
+				Playground.instance.winCount++;
+				toCount = false;
+			}
+			
 			Playground.instance.distanceToDestination = -2;
+
 
 		}
 		else if (col.CompareTag("FLoor"))
 		{
+			
+			
+			if (toCount){
+				this.score -= 100;
+				Playground.instance.lossCount++;
+				toCount = false;
+			}
+			
 			Playground.instance.distanceToDestination = -1;
-		}
+	}
 	}
 	
 	void Start()
@@ -82,6 +105,11 @@ public class SimpleCarController : MonoBehaviour
 
 	void Update()
 	{
+
+		if (Input.GetKeyDown(KeyCode.Tab))
+		{
+			got_first = false;
+		}
 		
 //		if(accData!=null)
 //			Debug.Log ("Got accData Acceleration: x = " + accData.accX + " y = " + accData.accY + " z = " + accData.accZ + " .");
@@ -110,7 +138,7 @@ public class SimpleCarController : MonoBehaviour
 	
 			//StartCoroutine(DelayUnityMovement(unity_delay));
 			//if(unity_toMove)
-				this.transform.localPosition += transform.forward * moveSpeed * Time.deltaTime;
+				this.transform.position += transform.forward * moveSpeed * Time.deltaTime;
 			
 		}else if (Input.GetKey(KeyCode.S))
 		{
@@ -123,7 +151,7 @@ public class SimpleCarController : MonoBehaviour
 	
 			//StartCoroutine(DelayUnityMovement(unity_delay));
 			//if(unity_toMove)
-				this.transform.localPosition -= transform.forward * moveSpeed * Time.deltaTime;
+				this.transform.position -= transform.forward * moveSpeed * Time.deltaTime;
 		}
 		else if (Input.GetKey(KeyCode.A))
 		{
@@ -161,23 +189,37 @@ public class SimpleCarController : MonoBehaviour
 			//SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
 	
 		}
-		
+
 		if (NetworkInput.GetKey(KeyCode.W))
 		{
-
 			//isTimer = true;
-			controllerValue1=maxSpeed;
+			controllerValue1 = maxSpeed;
 			controllerValue2 = maxSpeed;
 			controllerValue3 = maxSpeed;
 			controllerValue4 = maxSpeed;
-			
+
 			//SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
-	
+
 			//StartCoroutine(DelayUnityMovement(unity_delay));
 			//if(unity_toMove)
-			this.transform.localPosition += transform.forward * moveSpeed * Time.deltaTime;
-			
-		}else if (NetworkInput.GetKey(KeyCode.S))
+			var distance = Vector3.Distance(this.transform.position, Playground.instance.destinationPos);
+
+			this.transform.position += transform.forward * moveSpeed * Time.deltaTime;
+
+			if (toScore)
+			{
+				if (Vector3.Distance(this.transform.position, Playground.instance.destinationPos) < distance)
+				{
+					score++;
+				}
+				else
+				{
+					score -= 2;
+				}
+
+				toScore = false;
+			}
+	}else if (NetworkInput.GetKey(KeyCode.S))
 		{
 			controllerValue1=-maxSpeed;
 			controllerValue2 = -maxSpeed;
@@ -188,7 +230,23 @@ public class SimpleCarController : MonoBehaviour
 			
 			//StartCoroutine(DelayUnityMovement(unity_delay));
 			//if(unity_toMove)
-				this.transform.localPosition -= transform.forward * moveSpeed * Time.deltaTime;
+			var distance = Vector3.Distance(this.transform.position, Playground.instance.destinationPos);
+
+			this.transform.position -= transform.forward * moveSpeed * Time.deltaTime;
+
+			if (toScore)
+			{
+				if (Vector3.Distance(this.transform.position, Playground.instance.destinationPos) < distance)
+				{
+					score++;
+				}
+				else
+				{
+					score -= 2;
+				}
+
+				toScore = false;
+			}
 		}
 		else if (NetworkInput.GetKey(KeyCode.A))
 		{
@@ -202,6 +260,14 @@ public class SimpleCarController : MonoBehaviour
 			//StartCoroutine(DelayUnityMovement(unity_delay));
 			//if(unity_toMove)
 			if (simulate_rotate) this.transform.Rotate (-Vector3.up * rotateSpeed * Time.deltaTime);
+
+			if (toScore)
+			{
+				score--;
+
+				toScore = false;
+			}
+				
 		}
 		else if (NetworkInput.GetKey(KeyCode.D))
 		{
@@ -215,6 +281,13 @@ public class SimpleCarController : MonoBehaviour
 			//StartCoroutine(DelayUnityMovement(unity_delay));
 			//if(unity_toMove)
 			if (simulate_rotate) this.transform.Rotate (Vector3.up * rotateSpeed * Time.deltaTime);
+			
+			if (toScore)
+			{
+				score--;
+
+				toScore = false;
+			}
 		}
 		else
 		{
@@ -222,7 +295,9 @@ public class SimpleCarController : MonoBehaviour
 			controllerValue2 = 0f;
 			controllerValue3 = 0f;
 			controllerValue4 = 0f;
-			
+
+			toScore = true;
+
 		}
 		
 		SendRobotCommand((int)controllerValue1, (int)controllerValue2, (int)controllerValue3, (int)controllerValue4);
@@ -249,16 +324,15 @@ public class SimpleCarController : MonoBehaviour
 		
 		info.orientation.x = 0;
 		info.orientation.z = 0;
-		/*if (!got_first)
+		if (!got_first)
 		{
 			inital = info.orientation;
 			got_first = true;
 		}
 		
 		var newRotation = new Quaternion(transform.rotation.x, info.orientation.y - inital.y, transform.rotation.z, info.orientation.w);
-		*/
 		
-		gameObject.transform.rotation = info.orientation;
+		gameObject.transform.rotation = newRotation;
 
 		//reference to x accel
 

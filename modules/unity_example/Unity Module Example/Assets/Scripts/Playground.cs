@@ -15,9 +15,10 @@ public class Playground : MonoBehaviour
 
 	[Header("Debugging")]
 	public GameObject currentDestination;
-	public Vector3 destination;
+	public Vector3 destinationPos;
 	public Vector3 offset;
 	public float startTime;
+	//public float elapsedTime;
 	public bool isDest=false;
 	private Vector3 initPos;
 	private Quaternion initRot;
@@ -26,6 +27,20 @@ public class Playground : MonoBehaviour
 	
 
 	public static Playground instance;
+
+	[Header("UI")] 
+	public Text winCountText;
+	public Text lossCountText;
+	public Text epocheCountText;
+	public Text AIScore;
+	public Text AIHighestScore;
+
+	public int winCount = 0;
+	public int lossCount = 0;
+
+	private int highScore=-100000;
+	
+	
 
 
 	void Awake(){
@@ -47,11 +62,30 @@ public class Playground : MonoBehaviour
 		SpawnDestination();
 	}
 
-	void Update(){
+	void Update()
+	{
 
-		if (Input.GetKeyDown(KeyCode.Space))
+		//UPDATE Destination Pos
+		if (currentDestination != null)
 		{
-			ResetGame(0, 0f);
+			if(destinationPos!=currentDestination.transform.position)
+				destinationPos = currentDestination.transform.position;
+		}
+
+
+		//UPDATE UI
+		winCountText.text = "Win: " + winCount.ToString();
+		lossCountText.text = "Loss: " + lossCount.ToString();
+		AIScore.text = "Current: " + System.Math.Round(SimpleCarController.instance.score, 2).ToString();
+		//epocheCountText.text = 
+		
+		
+		
+		
+		
+	if (Input.GetKeyDown(KeyCode.Space))
+		{
+			ResetGame(0, 0);
 		}
 		if (Input.GetMouseButtonDown (0)) {
 		
@@ -101,12 +135,12 @@ public class Playground : MonoBehaviour
 		currentDestination = destination;
 	}
 	
-	public void ResetGame(int episode, float timer)
+	public void ResetGame(int episode, int steps)
 	{
 		distanceToDestination = 0;
 		
 		Debug.Log("Episode " + episode);
-		episodeText.text = "Episode " + episode;
+		epocheCountText.text = "Current Epoche: " + episode;
 		
 		var car = SimpleCarController.instance;
 		
@@ -119,7 +153,18 @@ public class Playground : MonoBehaviour
 		{
 			car.transform.rotation = initRot;
 		}
-		
+
+		SimpleCarController.instance.score /= (double) steps;
+
+		if (SimpleCarController.instance.score > this.highScore)
+		{
+			this.highScore = (int)SimpleCarController.instance.score;
+			AIHighestScore.text = "Highest: " + this.highScore;
+		}
+
+		SimpleCarController.instance.score = 0;
+		SimpleCarController.instance.toCount = true;
+
 	}
 
 

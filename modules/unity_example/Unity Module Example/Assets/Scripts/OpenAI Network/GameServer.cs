@@ -37,7 +37,7 @@ public class GameServer : AsyncMonoBehavior
 	public bool Connected = false;
 	
 	private Queue<Action> _actions = new Queue<Action>();
-	private LinkedList<UnityAction<int, float>> _resets = new LinkedList<UnityAction<int, float>>();
+	private LinkedList<UnityAction<int, int>> _resets = new LinkedList<UnityAction<int, int>>();
 	private LinkedList<UnityAction<Vector3, Vector3>> _movements = new LinkedList<UnityAction<Vector3, Vector3>>();
 
 	private Func<float> scorer;
@@ -98,18 +98,18 @@ public class GameServer : AsyncMonoBehavior
 		}
 	}
 
-	public void OnReset(UnityAction<int, float> GameReset)
+	public void OnReset(UnityAction<int, int> GameReset)
 	{
 		_resets.AddLast(GameReset);
 	}
 
-	public void DoReset(int episode, float timer)
+	public void DoReset(int episode, int steps)
 	{
 		_actions.Enqueue(delegate
 		{
 			foreach (var resetCallback in _resets)
 			{
-				resetCallback(episode, timer);
+				resetCallback(episode, steps);
 			}
 		});
 	}
@@ -189,7 +189,7 @@ public class GameServer : AsyncMonoBehavior
 				packetWriter = gameObject.AddComponent<NewScore>();
 			}
 
-			packetWriter.writePacket(client, distance, scorer_owner.transform.rotation);
+			packetWriter.writePacket(client, distance, scorer_owner.transform.rotation, scorer_owner.transform.position);
 		});
 	}
 }

@@ -2,7 +2,7 @@ import sys
 
 import gym
 
-from eyerobot_gym.config import OPEN_CL, DEBUG
+from eyerobot_gym.config import OPEN_CL, DEBUG, BATCH_SIZE, MEMORY_SIZE, EPOCH
 
 if OPEN_CL:
     import plaidml.keras
@@ -32,7 +32,10 @@ def action_to_letter(a):
     return actions[a]
 
 
-robot = RobotDQN(load_from="hallway3.ai", batch_size=40)
+robot = RobotDQN(load_from="s.ai",
+                 batch_size=BATCH_SIZE,
+                 memory_size=MEMORY_SIZE,
+                 epochs=EPOCH)
 env = gym.make('eyerobot-gym-v0')
 
 episodes = 1000
@@ -40,6 +43,7 @@ model_history = None
 counter = 0
 for i in range(episodes):
 
+    state = env.reset()
     stop = False
     if counter == 0:
         while True:
@@ -51,7 +55,7 @@ for i in range(episodes):
             elif r == "g" and model_history is not None:
                 graph(model_history)
             elif r == "s":
-                counter = 100
+                counter = 1000
                 break
             else:
                 stop = False
@@ -64,7 +68,6 @@ for i in range(episodes):
 
     print("Starting episode " + str(i))
 
-    state = env.reset()
     done = False
     won = False
 
@@ -91,8 +94,8 @@ for i in range(episodes):
 
     if not DEBUG:
         enablePrint()
-
     print("Episode completed!")
+    print("Score: " + str(reward))
 
     if won:
         print("I won!")
