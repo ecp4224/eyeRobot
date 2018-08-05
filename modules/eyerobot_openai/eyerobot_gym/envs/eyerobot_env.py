@@ -18,6 +18,8 @@ from eyerobot_gym.Policy import *
 
 
 class EyeRobotEnv(gym.Env):
+    """Create the gym environment for the AI"""
+    
     metadata = {'render.modes': ['human']}
 
     episode = 0
@@ -50,6 +52,8 @@ class EyeRobotEnv(gym.Env):
     packet_map = [None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None]
 
     def on_score(self, packet):
+        """Calculate rotation and distance"""
+        
         tmp = packet.read(4 * 8)
         tmp_buf = ByteBuffer(tmp, 0, 4 * 8)
 
@@ -72,14 +76,20 @@ class EyeRobotEnv(gym.Env):
         self.distance_count += 1
 
     def send_depth(self, dev, data, timestamp):
+        """Send depth data"""
+        
         self.current_depth_frame = data
         self.depth_frame_timestamp = timestamp
 
     def send_rgb(self, dev, data, timestamp):
+        """Send RGB camera data"""
+        
         self.current_rgb_frame = data
         self.current_rgb_frame = timestamp
 
     def body(self, dev, *args):
+        """Initialize movement variables"""
+        
         acc = freenect.get_accel(dev)
 
         accX = int(acc[0])
@@ -172,6 +182,8 @@ class EyeRobotEnv(gym.Env):
         self.socket.send(arr)
 
     def send_game_reset(self):
+        """Set new episode"""
+        
         buf = ByteBuffer(bytearray([0] * 8), 0, 8)
         buf.put_SLInt32(self.episode)
         buf.put_SLInt32(self.step_count)
@@ -201,6 +213,8 @@ class EyeRobotEnv(gym.Env):
         self.socket.send(to_send)
 
     def start_kinect(self):
+        """Initialize the depth camera, or send empty array if it is off"""
+        
         if ENABLE_KINECT:
             freenect.runloop(depth=self.send_depth,
                              video=self.send_rgb,
@@ -228,12 +242,16 @@ class EyeRobotEnv(gym.Env):
         self.socket.close()
 
     def update_observation(self, state):
+        """Set observation based on current state and update to new state"""
+        
         rx, ry, rz, rw = self.rotation
         px, py, pz = self.position
 
         self.observation = [state, self.new_distance, self.last_action, self.step_count, rx, ry, rz, rw]
 
     def step(self, action):
+        """Perform an action"""
+        
         assert self.action_space.contains(action)
 
         # Get Unity Key from action
@@ -296,13 +314,15 @@ class EyeRobotEnv(gym.Env):
 
         reward, done = self.policy.calculate(self, difference)
 
-        print "Got reward " + str(reward)
+        print("Got reward " + str(reward))
 
         to_return = [self.observation, self.current_depth_frame] if ENABLE_KINECT else [self.observation]
 
         return to_return, reward, done, {"distance": self.new_distance, "steps": self.step_count}
 
     def reset(self):
+        """Reset the environment"""
+        
         self.send_game_reset()
 
         self.step_count = 0
@@ -352,8 +372,10 @@ class EyeRobotEnv(gym.Env):
         self.read_thread.join(1000)
 
     def start_reading(self):
+        """Get the command"""
+        
         while self.connected:
-            print "Waiting for command.."
+            print("Waiting for command..")
 
             header_arr = self.safe_read(1)
 
