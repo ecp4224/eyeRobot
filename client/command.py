@@ -2,6 +2,9 @@ from Adafruit_MotorHAT import Adafruit_MotorHAT, Adafruit_DCMotor
 
 
 class Command:
+    """
+    Represents a server command
+    """
     motor1 = 0
     motor2 = 0
     motor3 = 0

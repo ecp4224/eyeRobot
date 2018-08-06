@@ -36,10 +36,12 @@ def serial_ports():
     return result
 
 
+# Print serial ports (to find gyroscope)
 print(serial_ports())
 
 print "Attach to motors"
 
+# Attach to motors
 mh = Adafruit_MotorHAT(addr=0x60)
 
 
@@ -51,10 +53,12 @@ def turnOffMotors():
     mh.getMotor(4).run(Adafruit_MotorHAT.RELEASE)
 
 
+# Run function when script exists
 atexit.register(turnOffMotors)
 
 print "Get motors"
 
+# Save motor references
 frontl = mh.getMotor(3)
 frontr = mh.getMotor(4)
 rearl = mh.getMotor(1)
@@ -62,6 +66,7 @@ rearr = mh.getMotor(2)
 
 device = None
 
+# Function to run when a new command is received from the server
 def server_command(data):
     print "Got motor command from server"
     global device
@@ -100,11 +105,12 @@ def server_command(data):
     # Echo back the command, along with some test variables
     client.send_info_packet(motor1, motor2, motor3, motor4, acc, quat, compass)
 
-
+# Port that gyroscope is on
 com_port = "/dev/tty.usbmodem1411"
 
 print "Attaching to COM port " + com_port
 
+# Setup gyroscope
 try:
     device = ts_api.TSUSBSensor(com_port=com_port)
 except:
@@ -114,8 +120,10 @@ else:
 
 print "Prepare client"
 
+# Create a new RobotClient and set the on_command callback to be the server_command function
 client = RobotClient(on_command=server_command)
 
 print "Connecting to server"
 
+# Connect to the server in config.py
 client.connect()

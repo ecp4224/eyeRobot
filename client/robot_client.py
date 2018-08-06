@@ -4,7 +4,7 @@ import atexit
 from command import Command
 from threading import Thread
 from util.bytebuffer import ByteBuffer
-from config import IP, PORT, BUFFER, NAME, PEER_IP
+from config import IP, PORT, BUFFER, NAME
 
 
 class RobotClient:
@@ -33,6 +33,11 @@ class RobotClient:
             sys.exit()
 
     def connect(self):
+        """
+        Connect to server and send a session packet
+        Listening is handled on a separate thread
+        :return:
+        """
         # self.socket.connect(self.server_address)
 
         self.connected = True
@@ -45,17 +50,36 @@ class RobotClient:
         atexit.register(self.disconnect)
 
     def disconnect(self):
+        """
+        Disconnect from the server
+        :return:
+        """
         self.connected = False
 
         self.socket.shutdown(socket.SHUT_WR)
 
     def send_session_packet(self):
+        """
+        Send a session packet to the server to start a new session
+        :return:
+        """
         arr = bytearray([0x00, 0, len(NAME)])
         arr.extend(NAME)
 
         self.socket.sendto(arr, self.server_address)
 
     def send_info_packet(self, motor1, motor2, motor3, motor4, acc, gyro, compass):
+        """
+        Send a Sensor Information Packet to the server
+        :param motor1: The current power of motor1
+        :param motor2: The current power of motor2
+        :param motor3: The current power of motor3
+        :param motor4: The current power of motor4
+        :param acc: A Vector3 of the current acceleration of the robot
+        :param gyro: A Quaternion that represents the current orientation of the robot
+        :param compass: A Vector3 of the current compass of the robot
+        :return:
+        """
         total_size = 64
 
         accX, accY, accZ = acc
@@ -89,6 +113,12 @@ class RobotClient:
         self.socket.sendto(to_send, self.server_address)
 
     def start_reading(self):
+        """
+        Begin reading data from the server
+
+        SHOULD ONLY BE DONE BY self.connect()
+        :return:
+        """
         while self.connected:
             print "Waiting for command.."
 
