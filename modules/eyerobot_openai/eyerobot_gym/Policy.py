@@ -96,7 +96,7 @@ class SimpleScorePolicy(Policy):
 class EagerScorePolicy(SimpleScorePolicy):
     error_counter = 0
     reset_counter = 0
-    max_errors = 3
+    max_errors = 4
     good_required_reset = 4
     previous_score = 0
 
@@ -109,8 +109,8 @@ class EagerScorePolicy(SimpleScorePolicy):
             self.error_counter += 1
             if self.error_counter >= self.max_errors:
                 done = True
-                self.score = 0
-                reward = 0
+                self.score = -100
+                reward = -100
         else:
             self.reset_counter += 1
             if self.reset_counter >= self.good_required_reset:

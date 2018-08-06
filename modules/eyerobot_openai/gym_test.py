@@ -32,7 +32,7 @@ def action_to_letter(a):
     return actions[a]
 
 
-robot = RobotDQN(load_from="s.ai",
+robot = RobotDQN(load_from="hallway3.ai",
                  batch_size=BATCH_SIZE,
                  memory_size=MEMORY_SIZE,
                  epochs=EPOCH)
