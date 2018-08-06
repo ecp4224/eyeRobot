@@ -45,8 +45,9 @@ print "Attach to motors"
 mh = Adafruit_MotorHAT(addr=0x60)
 
 
-# recommended for auto-disabling motors on shutdown!
 def turnOffMotors():
+    """Disable all motors"""
+    
     mh.getMotor(1).run(Adafruit_MotorHAT.RELEASE)
     mh.getMotor(2).run(Adafruit_MotorHAT.RELEASE)
     mh.getMotor(3).run(Adafruit_MotorHAT.RELEASE)
@@ -68,6 +69,8 @@ device = None
 
 # Function to run when a new command is received from the server
 def server_command(data):
+    """Operate the motors as specified by the server"""
+    
     print "Got motor command from server"
     global device
 
